@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace strategiespiel_client
+namespace strategiespiel_server
 {
 #if WINDOWS || LINUX
     /// <summary>
@@ -14,8 +14,8 @@ namespace strategiespiel_client
         [STAThread]
         static void Main()
         {
-            using (var game = new Game())
-                game.Run();
+            Server server = new Server();
+            server.Start();            
         }
     }
 #endif

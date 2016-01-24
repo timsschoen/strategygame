@@ -2,17 +2,17 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace strategiespiel_client
+namespace strategiespiel2
 {
     /// <summary>
     /// This is the main type for your game.
     /// </summary>
-    public class Game : Microsoft.Xna.Framework.Game
+    public class GameBase : Game
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        public Game()
+        public GameBase()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
