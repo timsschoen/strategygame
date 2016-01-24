@@ -9,6 +9,13 @@ namespace strategiespiel2
     /// </summary>
     public class GameBase : Game
     {
+        enum GameState
+        {
+            Menu,
+            Lobby,
+            InGame
+        }
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
