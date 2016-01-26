@@ -1,10 +1,10 @@
 ﻿namespace strategiespiel_common
 {
-    delegate void NetwokMessageHandler(int fromID, Message message);
+    delegate void NetwokMessageHandler(int fromID, IMessage message);
 
     interface INetworkSender
     {
-        void sendOverNetwork(Message toSend);
+        void sendOverNetwork(IMessage toSend);
         void addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType);        
     }
 }

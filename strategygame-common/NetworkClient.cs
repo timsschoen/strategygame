@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 
@@ -9,14 +12,38 @@ namespace strategiespiel_common
         Thread clientThread;
         TcpClient tcpClient;
 
+        public bool isConnected { get; private set; } = false;
+
+        private ConcurrentQueue<IMessage> MessagesToSend;
+        private ConcurrentQueue<IMessage> ReceivedMessages;
+        
+        //TODO Thread Safety
+        private Lookup<string, NetwokMessageHandler> HandlersForMessageType;
+
         public NetworkClient()
         {
             clientThread = new Thread(new ThreadStart(NetworkUpdateLoop));
+            tcpClient = new TcpClient();
+
+            //HandlersForMessageType = Lookup< string, NetwokMessageHandler >
+
+            MessagesToSend = new ConcurrentQueue<IMessage>();
+            ReceivedMessages = new ConcurrentQueue<IMessage>();
         }
 
-        public void Connect(string IPAddress)
+        public bool Connect(string IPAddress, int Port)
         {
-            //TODO
+            try
+            {
+                tcpClient.Connect(IPAddress, Port);
+                isConnected = true;
+                return true;
+            }
+            catch(Exception ex)
+            {
+                isConnected = false;
+                return false;
+            }
         }
 
         void NetworkUpdateLoop()
@@ -26,12 +53,12 @@ namespace strategiespiel_common
 
         void INetworkSender.addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType)
         {
-            throw new NotImplementedException();
+            //HandlersForMessageType.
         }
 
-        void INetworkSender.sendOverNetwork(Message toSend)
+        void INetworkSender.sendOverNetwork(IMessage toSend)
         {
-            throw new NotImplementedException();
+            MessagesToSend.Enqueue(toSend);
         }
     }
 }

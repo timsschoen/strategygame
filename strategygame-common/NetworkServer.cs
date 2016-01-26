@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Net.Sockets;
 using System.Threading;
 
 namespace strategiespiel_common
@@ -6,17 +9,29 @@ namespace strategiespiel_common
     class NetworkServer : INetworkSender
     {
         private Thread serverThread;
+        private List<Client> connectedClients;
+        private ConcurrentQueue<IMessage> messageQueue;
 
         public NetworkServer()
         {
             serverThread = new Thread(new ThreadStart(NetworkUpdateLoop));
+            messageQueue = new ConcurrentQueue<IMessage>();
+        }
+
+        public IMessage TryGetNewMessage()
+        {
+            IMessage message = null;
+            if (messageQueue.TryDequeue(out message))
+                return message;
+            else
+                return null;
         }
 
         public void Start()
         {
             serverThread.Start();
         }
-
+        
         void NetworkUpdateLoop()
         {
             //TODO
@@ -27,9 +42,15 @@ namespace strategiespiel_common
             throw new NotImplementedException();
         }
 
-        void INetworkSender.sendOverNetwork(Message toSend)
+        void INetworkSender.sendOverNetwork(IMessage toSend)
         {
             throw new NotImplementedException();
+        }
+
+        private class Client
+        {
+            public TcpClient tcpClient;
+            public int ID;
         }
     }
 }
