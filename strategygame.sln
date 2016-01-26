@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategiespiel-client", "strategiespiel-client\strategiespiel-client.csproj", "{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategygame-client", "strategygame-client\strategygame-client.csproj", "{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategiespiel-server", "strategiespiel-server\strategiespiel-server.csproj", "{303788A1-193E-4B1C-9466-C864241E40C0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategygame-server", "strategygame-server\strategygame-server.csproj", "{303788A1-193E-4B1C-9466-C864241E40C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategiespiel-common", "strategiespiel-common\strategiespiel-common.csproj", "{FE86E7E5-E310-4B80-9B8B-61748657D98B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategygame-common", "strategygame-common\strategygame-common.csproj", "{FE86E7E5-E310-4B80-9B8B-61748657D98B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
