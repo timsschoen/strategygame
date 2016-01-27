@@ -1,4 +1,4 @@
-﻿namespace strategiespiel_common
+﻿namespace strategygame_common
 {
     delegate void NetwokMessageHandler(int fromID, IMessage message);
 

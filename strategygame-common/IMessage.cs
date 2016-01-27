@@ -1,4 +1,4 @@
-﻿namespace strategiespiel_common
+﻿namespace strategygame_common
 {
     interface IMessage
     {

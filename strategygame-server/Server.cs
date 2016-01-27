@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Threading;
 
-namespace strategiespiel_server
+namespace strategygame_server
 {
     public class Server
     {

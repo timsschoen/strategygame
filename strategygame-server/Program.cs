@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace strategiespiel_server
+namespace strategygame_server
 {
 #if WINDOWS || LINUX
     /// <summary>

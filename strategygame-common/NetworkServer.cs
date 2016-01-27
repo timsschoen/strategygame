@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace strategiespiel_common
+namespace strategygame_common
 {
     class NetworkServer : INetworkSender
     {

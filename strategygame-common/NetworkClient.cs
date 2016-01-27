@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
 
-namespace strategiespiel_common
+namespace strategygame_common
 {
     class NetworkClient : INetworkSender
     {

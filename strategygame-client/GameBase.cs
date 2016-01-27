@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace strategiespiel2
+namespace strategygame_client
 {
     /// <summary>
     /// This is the main type for your game.
