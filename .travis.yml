@@ -2,4 +2,4 @@ language: csharp
 solution: strategygame.sln
 install:
   - nuget install MonoGame.Framework.Linux
-  - nuget restore solution-name.sln
+  - nuget restore strategygame.sln
