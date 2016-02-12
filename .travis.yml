@@ -1,2 +1,5 @@
 language: csharp
 solution: strategygame.sln
+install:
+	- sudo apt-get install monodevelop
+	- nuget restore strategygame.sln
