@@ -1,5 +1,6 @@
 language: csharp
 solution: strategygame.sln
+sudo: required
 install:
   - sudo apt-get install monodevelop
   - nuget install MonoGame.Framework.Linux
