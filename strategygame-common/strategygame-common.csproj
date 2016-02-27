@@ -72,7 +72,7 @@
   </ItemGroup>
   <!-- Specify the search path explicitly so the ResolveAssemblyReferences task picks the right ones -->
   <Target Name="BeforeResolveReferences">
-    <CreateProperty Value="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows;$(AssemblySearchPaths)">
+    <CreateProperty Value="$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Windows;$(MonoGameInstallDirectory)\MonoGame\v3.0\Assemblies\Linux;$(AssemblySearchPaths)">
       <Output TaskParameter="Value" PropertyName="AssemblySearchPaths" />
     </CreateProperty>
   </Target>
