@@ -14,13 +14,14 @@ namespace strategygame_common
     public class MapRenderer
     {
         public Camera Camera;
-
+        private Map Map;
         public Dictionary<MapCellType, Texture2D> BaseTextures;
 
-        public MapRenderer(ContentManager contentManager)
+        public MapRenderer(ContentManager contentManager, Map Map, int ScreenWidth, int ScreenHeight)
         {
-            Camera = new Camera(25);
+            Camera = new Camera(25, ScreenWidth, ScreenHeight, Map.Width, Map.Height);
             BaseTextures = new Dictionary<MapCellType, Texture2D>();
+            this.Map = Map;
 
             BaseTextures.Add(MapCellType.Flatland, contentManager.Load<Texture2D>("Map/BaseTextures/Flatland"));
             BaseTextures.Add(MapCellType.Mountain, contentManager.Load<Texture2D>("Map/BaseTextures/Mountain"));
@@ -38,10 +39,17 @@ namespace strategygame_common
             return Camera.getClickedHex(clickPos);
         }
 
-        public void Draw(Map Map, SpriteBatch spriteBatch)
+        public void setMap(Map Map)
+        {
+            this.Map = Map;
+
+            Camera.setMapSize(Map.Width, Map.Height);
+        }
+
+        public void Draw(Map Map, SpriteBatch spriteBatch, float layerDepth)
         {
             //Get Rectangle to draw from camera
-            Rectangle toDraw = Camera.getRectangleToDraw(Map.Height, Map.Width, spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight, spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth);
+            Rectangle toDraw = Camera.getRectangleToDraw();
             for(int x = toDraw.Left; x < toDraw.Right; x++)
             {
                 for(int y = toDraw.Top; y < toDraw.Bottom; y++)
@@ -61,7 +69,7 @@ namespace strategygame_common
                     //construct destination rectangle
                     Rectangle cellRect = Camera.getRectangleToDrawCell(x, y);
 
-                    spriteBatch.Draw(BaseTexture, cellRect, Color.White);
+                    spriteBatch.Draw(BaseTexture, cellRect, null, Color.White, 0.0f, new Vector2(), SpriteEffects.None, layerDepth);
                 }
             }
 

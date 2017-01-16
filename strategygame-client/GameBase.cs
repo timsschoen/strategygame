@@ -20,6 +20,7 @@ namespace strategygame_client
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Texture2D Cursor;
         Map Map;
         MapRenderer MapRenderer;
 
@@ -29,8 +30,6 @@ namespace strategygame_client
             graphics.PreferredBackBufferHeight = 1000;
             graphics.PreferredBackBufferWidth = 1500;
             Content.RootDirectory = "Content";
-            //GraphicsDevice.PresentationParameters.BackBufferHeight = 1000;
-            //GraphicsDevice.PresentationParameters.BackBufferWidth = 1000;
 
         }
 
@@ -45,8 +44,8 @@ namespace strategygame_client
             // TODO: Add your initialization logic here
 
             base.Initialize();
-            MapRenderer = new MapRenderer(Content);
             Map = Map.LoadFromFolder(this.GraphicsDevice, Content.RootDirectory + "/Maps/1");
+            MapRenderer = new MapRenderer(Content, Map, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
         }
 
         /// <summary>
@@ -57,7 +56,7 @@ namespace strategygame_client
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-
+            Cursor = Content.Load<Texture2D>("UI/cursor");
             // TODO: use this.Content to load your game content here
         }
 
@@ -92,10 +91,11 @@ namespace strategygame_client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
+            GraphicsDevice.Clear(Color.Black);
+            spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-            MapRenderer.Draw(Map, spriteBatch);
+            spriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), null, Color.White, 0.0f, new Vector2(), 1.0f, SpriteEffects.None, 1.0f);
+            MapRenderer.Draw(Map, spriteBatch, 0.0f);
 
             spriteBatch.End();
             // TODO: Add your drawing code here
