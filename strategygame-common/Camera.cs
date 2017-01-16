@@ -13,28 +13,46 @@ namespace strategygame_common
     {
         public Vector2 TopLeftCoordinates;
         public float Zoom;
+        public long LastScrollKeypress;
 
         private int TileSize;
 
         public Camera(int Tilesize)
         {
             TopLeftCoordinates = new Vector2();
-            Zoom = 1f;
+            Zoom = 2f;
             TileSize = Tilesize;
         }
 
         public void Update(GameTime gameTime)
         {
-            KeyboardState KS = Keyboard.GetState();
 
-            if (KS.IsKeyDown(Keys.Right))
-                TopLeftCoordinates.X++;
-            if (KS.IsKeyDown(Keys.Left))
-                TopLeftCoordinates.X--;
-            if (KS.IsKeyDown(Keys.Up))
-                TopLeftCoordinates.Y--;
-            if (KS.IsKeyDown(Keys.Down))
-                TopLeftCoordinates.Y++;
+            if (gameTime.TotalGameTime.TotalMilliseconds - LastScrollKeypress > 500)
+            {
+                KeyboardState KS = Keyboard.GetState();
+
+                if (KS.IsKeyDown(Keys.Right))
+                {
+                    TopLeftCoordinates.X++;
+                    LastScrollKeypress = (long)gameTime.TotalGameTime.TotalMilliseconds;
+                }
+                if (KS.IsKeyDown(Keys.Left))
+                {
+                    TopLeftCoordinates.X--;
+                    LastScrollKeypress = (long)gameTime.TotalGameTime.TotalMilliseconds;
+                }
+                if (KS.IsKeyDown(Keys.Up))
+                {
+                    TopLeftCoordinates.Y--;
+                    LastScrollKeypress = (long)gameTime.TotalGameTime.TotalMilliseconds;
+                }
+                if (KS.IsKeyDown(Keys.Down))
+                {
+                    TopLeftCoordinates.Y++;
+                    LastScrollKeypress = (long)gameTime.TotalGameTime.TotalMilliseconds;
+                }
+                
+            }
         }       
         
         public Vector2 getClickedHex(Point clickPos)
@@ -46,10 +64,19 @@ namespace strategygame_common
         {
             Rectangle cellRect = new Rectangle();
 
+            cellRect.X = (int)((x - TopLeftCoordinates.X) * TileSize*Zoom);
+            cellRect.Y = (int)((0.75f*(y - TopLeftCoordinates.Y)) * TileSize*Zoom);
+
+            if (y % 2 != 0)
+                cellRect.X += (int)(0.5f*TileSize * Zoom);
+
+            cellRect.Width = (int)(TileSize * Zoom);
+            cellRect.Height = (int)(TileSize * Zoom);
+            
             return cellRect;
         }
 
-        public Rectangle getRectangleToDraw(int MapHeight, int MapWidth)
+        public Rectangle getRectangleToDraw(int MapHeight, int MapWidth, int ScreenHeight, int ScreenWidth)
         {
             Rectangle rect = new Rectangle();
 
@@ -62,8 +89,8 @@ namespace strategygame_common
             rect.X = Math.Min(MapWidth, rect.X);
             rect.Y = Math.Min(MapHeight, rect.Y);
 
-            rect.Width = (int)Math.Ceiling(GraphicsDeviceManager.DefaultBackBufferWidth / (TileSize * Zoom)) + 1;
-            rect.Height = (int)Math.Ceiling(GraphicsDeviceManager.DefaultBackBufferHeight / (TileSize * Zoom)) + 1;
+            rect.Width = (int)Math.Ceiling(ScreenWidth / (TileSize * Zoom)) + 1;
+            rect.Height = (int)Math.Ceiling(ScreenHeight*1.34f / (TileSize * Zoom)) + 1;
 
             return rect;
         } 

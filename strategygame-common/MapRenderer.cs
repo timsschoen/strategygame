@@ -41,7 +41,7 @@ namespace strategygame_common
         public void Draw(Map Map, SpriteBatch spriteBatch)
         {
             //Get Rectangle to draw from camera
-            Rectangle toDraw = Camera.getRectangleToDraw(Map.Height, Map.Width);
+            Rectangle toDraw = Camera.getRectangleToDraw(Map.Height, Map.Width, spriteBatch.GraphicsDevice.PresentationParameters.BackBufferHeight, spriteBatch.GraphicsDevice.PresentationParameters.BackBufferWidth);
             for(int x = toDraw.Left; x < toDraw.Right; x++)
             {
                 for(int y = toDraw.Top; y < toDraw.Bottom; y++)

@@ -26,7 +26,11 @@ namespace strategygame_client
         public GameBase()
         {
             graphics = new GraphicsDeviceManager(this);
+            graphics.PreferredBackBufferHeight = 1000;
+            graphics.PreferredBackBufferWidth = 1500;
             Content.RootDirectory = "Content";
+            //GraphicsDevice.PresentationParameters.BackBufferHeight = 1000;
+            //GraphicsDevice.PresentationParameters.BackBufferWidth = 1000;
 
         }
 

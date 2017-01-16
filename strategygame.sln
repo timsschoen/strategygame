@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "strategygame-client", "strategygame-client\strategygame-client.csproj", "{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -23,16 +23,16 @@ Global
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}.Debug|x86.ActiveCfg = Debug|x86
 		{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}.Debug|x86.Build.0 = Debug|x86
-		{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}.Release|x86.ActiveCfg = Release|x86
-		{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}.Release|x86.Build.0 = Release|x86
+		{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}.Release|x86.ActiveCfg = Debug|x86
+		{AFB48FEE-94C4-4B9A-AB07-3FB9F026DA45}.Release|x86.Build.0 = Debug|x86
 		{303788A1-193E-4B1C-9466-C864241E40C0}.Debug|x86.ActiveCfg = Debug|x86
 		{303788A1-193E-4B1C-9466-C864241E40C0}.Debug|x86.Build.0 = Debug|x86
-		{303788A1-193E-4B1C-9466-C864241E40C0}.Release|x86.ActiveCfg = Release|x86
-		{303788A1-193E-4B1C-9466-C864241E40C0}.Release|x86.Build.0 = Release|x86
+		{303788A1-193E-4B1C-9466-C864241E40C0}.Release|x86.ActiveCfg = Debug|x86
+		{303788A1-193E-4B1C-9466-C864241E40C0}.Release|x86.Build.0 = Debug|x86
 		{FE86E7E5-E310-4B80-9B8B-61748657D98B}.Debug|x86.ActiveCfg = Debug|x86
 		{FE86E7E5-E310-4B80-9B8B-61748657D98B}.Debug|x86.Build.0 = Debug|x86
-		{FE86E7E5-E310-4B80-9B8B-61748657D98B}.Release|x86.ActiveCfg = Release|x86
-		{FE86E7E5-E310-4B80-9B8B-61748657D98B}.Release|x86.Build.0 = Release|x86
+		{FE86E7E5-E310-4B80-9B8B-61748657D98B}.Release|x86.ActiveCfg = Debug|x86
+		{FE86E7E5-E310-4B80-9B8B-61748657D98B}.Release|x86.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
