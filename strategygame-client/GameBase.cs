@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using strategygame_common;
 
 namespace strategygame_client
 {
@@ -19,10 +20,14 @@ namespace strategygame_client
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
+        Map Map;
+        MapRenderer MapRenderer;
+
         public GameBase()
         {
             graphics = new GraphicsDeviceManager(this);
             Content.RootDirectory = "Content";
+
         }
 
         /// <summary>
@@ -36,6 +41,8 @@ namespace strategygame_client
             // TODO: Add your initialization logic here
 
             base.Initialize();
+            MapRenderer = new MapRenderer(Content);
+            Map = Map.LoadFromFolder(this.GraphicsDevice, Content.RootDirectory + "/Maps/1");
         }
 
         /// <summary>
@@ -70,6 +77,7 @@ namespace strategygame_client
                 Exit();
 
             // TODO: Add your update logic here
+            MapRenderer.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -81,7 +89,11 @@ namespace strategygame_client
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
+            spriteBatch.Begin();
 
+            MapRenderer.Draw(Map, spriteBatch);
+
+            spriteBatch.End();
             // TODO: Add your drawing code here
 
             base.Draw(gameTime);

@@ -48,16 +48,24 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Camera.cs" />
     <Compile Include="INetworkSender.cs" />
     <Compile Include="IMessage.cs" />
+    <Compile Include="Map.cs" />
+    <Compile Include="MapCell.cs" />
+    <Compile Include="MapRenderer.cs" />
     <Compile Include="NetworkClient.cs" />
     <Compile Include="NetworkServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <Reference Include="MonoGame.Framework, Version=3.4.0.459, Culture=neutral, processorArchitecture=MSIL">
       <HintPath Condition=" '$(OS)' == 'Unix' ">..\packages\MonoGame.Framework.Linux.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>
-	  <HintPath Condition=" '$(OS)' != 'Unix' ">..\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>
+      <HintPath Condition=" '$(OS)' != 'Unix' ">..\packages\MonoGame.Framework.WindowsGL.3.4.0.459\lib\net40\MonoGame.Framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="NVorbis, Version=0.8.4.0, Culture=neutral, processorArchitecture=MSIL">

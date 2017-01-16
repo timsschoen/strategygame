@@ -6,21 +6,21 @@ using System.Threading;
 
 namespace strategygame_common
 {
-    class NetworkServer : INetworkSender
+    public class NetworkServer
     {
         private Thread serverThread;
         private List<Client> connectedClients;
-        private ConcurrentQueue<IMessage> messageQueue;
+        private ConcurrentQueue<RawMessage> messageQueue;
 
         public NetworkServer()
         {
             serverThread = new Thread(new ThreadStart(NetworkUpdateLoop));
-            messageQueue = new ConcurrentQueue<IMessage>();
+            messageQueue = new ConcurrentQueue<RawMessage>();
         }
 
-        public IMessage TryGetNewMessage()
+        public RawMessage TryGetNewMessage()
         {
-            IMessage message = null;
+            RawMessage message = null;
             if (messageQueue.TryDequeue(out message))
                 return message;
             else
@@ -31,26 +31,40 @@ namespace strategygame_common
         {
             serverThread.Start();
         }
-        
+
         void NetworkUpdateLoop()
         {
             //TODO
         }
 
-        void INetworkSender.addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType)
+        void addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType)
         {
             throw new NotImplementedException();
         }
 
-        void INetworkSender.sendOverNetwork(IMessage toSend)
+        void sendOverNetwork(IMessage toSend)
         {
             throw new NotImplementedException();
         }
 
-        private class Client
+        public class Client
         {
             public TcpClient tcpClient;
-            public int ID;
+        }
+
+        public class RawMessage : IMessage
+        {
+            Client NetworkClient;
+
+            public byte[] GetNetworkBytes()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool LoadFromNetworkBytes(byte[] Bytes)
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }
