@@ -21,7 +21,8 @@ namespace strategygame_server
         public Server()
         {
             lobbySession = new ServerLobbySession();
-            serverThread = new Thread(new ThreadStart(ServerLoop));            
+            serverThread = new Thread(new ThreadStart(ServerLoop));
+            networkServer = new NetworkServer(new ConsoleLogger()); 
         }
         
         public void Start()
@@ -34,10 +35,13 @@ namespace strategygame_server
         {            
             while (!StopFlag)
             {
-                RawMessage message = networkServer.TryGetNewMessage();
+                IMessage message = networkServer.TryGetNewMessage();
                 if(message != null)
                 {
-                }                
+                    //sort between general, lobby and game messages
+                }      
+                
+                //update lobby and game sessions          
             }
         }        
     }

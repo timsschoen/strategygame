@@ -30,7 +30,6 @@ namespace strategygame_client
             graphics.PreferredBackBufferHeight = 1000;
             graphics.PreferredBackBufferWidth = 1500;
             Content.RootDirectory = "Content";
-
         }
 
         /// <summary>
