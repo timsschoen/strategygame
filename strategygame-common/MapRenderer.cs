@@ -32,7 +32,7 @@ namespace strategygame_common
         public void Update(GameTime gameTime)
         {
             Camera.Update(gameTime);
-        }
+        }        
 
         public Vector2 getClickedHex(Point clickPos)
         {
@@ -46,7 +46,7 @@ namespace strategygame_common
             Camera.setMapSize(Map.Width, Map.Height);
         }
 
-        public void Draw(Map Map, SpriteBatch spriteBatch, float layerDepth)
+        public void Draw(Map Map, List<IMapRenderComponent> MapEntities, SpriteBatch spriteBatch, float layerDepth)
         {
             //Get Rectangle to draw from camera
             Rectangle toDraw = Camera.getRectangleToDraw();

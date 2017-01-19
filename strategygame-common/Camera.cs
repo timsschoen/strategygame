@@ -47,6 +47,12 @@ namespace strategygame_common
             this.MapHeight = MapHeight;
         }
 
+        public Point Project(Vector2 Coordinates)
+        {
+            //TODO
+            return new Point();
+        }
+
         public void Update(GameTime gameTime)
         {
             TopLeftCoordinates += Scrolling;

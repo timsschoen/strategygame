@@ -2,6 +2,8 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using strategygame_common;
+using System;
+using System.Collections.Generic;
 
 namespace strategygame_client
 {
@@ -23,6 +25,7 @@ namespace strategygame_client
         Texture2D Cursor;
         Map Map;
         MapRenderer MapRenderer;
+        Dictionary<int, IEntity> Entities;
 
         public GameBase()
         {
@@ -30,6 +33,12 @@ namespace strategygame_client
             graphics.PreferredBackBufferHeight = 1000;
             graphics.PreferredBackBufferWidth = 1500;
             Content.RootDirectory = "Content";
+            Entities = new Dictionary<int, IEntity>();
+        }
+
+        Dictionary<int, IEntity> getAllEntitiesWithType(Type type)
+        {
+            Entities.
         }
 
         /// <summary>

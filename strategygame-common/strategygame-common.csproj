@@ -50,11 +50,13 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="IEntity.cs" />
     <Compile Include="ILogger.cs" />
     <Compile Include="INetworkSender.cs" />
     <Compile Include="IMessage.cs" />
     <Compile Include="Map.cs" />
     <Compile Include="MapCell.cs" />
+    <Compile Include="IMapRenderComponent.cs" />
     <Compile Include="MapRenderer.cs" />
     <Compile Include="NetworkClient.cs" />
     <Compile Include="NetworkServer.cs" />
