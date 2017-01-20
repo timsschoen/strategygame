@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using System.Threading;
 using Lidgren.Network;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace strategygame_common
 {
@@ -50,37 +52,69 @@ namespace strategygame_common
         void NetworkUpdateLoop()
         {
             NetPeerConfiguration config = new NetPeerConfiguration("StrategyGame");
+            config.Port = 6679;
             LidgrenServer = new NetServer(config);
             LidgrenServer.Start();
 
-            while(!StopFlag)
+            JsonSerializer JsonReader = new JsonSerializer();
+            List<NetIncomingMessage> IncomingMessages = new List<NetIncomingMessage>();
+
+            while (!StopFlag)
             {
-                NetIncomingMessage incMsg = LidgrenServer.ReadMessage();
 
-                if(incMsg.MessageType == NetIncomingMessageType.StatusChanged)
-                {
-                    if(incMsg.SenderConnection.Status == NetConnectionStatus.Connected)
-                    {
-                        Client client = new Client(incMsg.SenderConnection);
-                        Connections.Add(incMsg.SenderConnection, NextID);
-                        connectedClients.Add(NextID, client);
-                        Logger.Log(LogPriority.Important, "Network", "New Client " + NextID + " connected.");
-                        IncomingMessageQueue.Enqueue(new NewClientConnectedMessage(NextID));
-                        NextID++;
-                    }
-                }
-                else if(incMsg.MessageType == NetIncomingMessageType.Data)
-                {
-                    if (!Connections.ContainsKey(incMsg.SenderConnection))
-                        continue;
+                LidgrenServer.ReadMessages(IncomingMessages);
 
-                    handleMessage(incMsg, Connections[incMsg.SenderConnection]);
+                for(int i = 0; i < IncomingMessages.Count; i++)
+                {
+                    handleMessage(IncomingMessages[i]);
                 }
-                    
+
+                IncomingMessages.Clear();
+
+                //send Messages we need to send
+                IMessage toSend;
+                while (OutgoingMessageQueue.TryDequeue(out toSend))
+                {
+                    StringWriter stringWriter = new StringWriter();
+                    JsonReader.Serialize(new JsonTextWriter(stringWriter), toSend);
+                    string Message = stringWriter.ToString();
+                    LidgrenServer.SendMessage(LidgrenServer.CreateMessage(Message), connectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
+                }
+
             }
         }        
 
-        void handleMessage(NetIncomingMessage Message, int ClientID)
+        void handleMessage(NetIncomingMessage incMsg)
+        {
+            if (incMsg.MessageType == NetIncomingMessageType.StatusChanged)
+            {
+                if (incMsg.SenderConnection.Status == NetConnectionStatus.Connected)
+                {
+                    Client client = new Client(incMsg.SenderConnection);
+                    Connections.Add(incMsg.SenderConnection, NextID);
+                    connectedClients.Add(NextID, client);
+                    Logger.Log(LogPriority.Important, "Network", "New Client " + NextID + " connected.");
+                    IncomingMessageQueue.Enqueue(new NewClientConnectedMessage(NextID));
+                    NextID++;
+                }
+                else if(incMsg.SenderConnection.Status == NetConnectionStatus.Disconnected || incMsg.SenderConnection.Status == NetConnectionStatus.Disconnecting)
+                {
+                    int id = Connections[incMsg.SenderConnection];
+                    Connections.Remove(incMsg.SenderConnection);
+                    connectedClients.Remove(id);
+                    Logger.Log(LogPriority.Important, "Network", "Client " + NextID + " disconnected.");
+                }
+            }
+            else if (incMsg.MessageType == NetIncomingMessageType.Data)
+            {
+                if (!Connections.ContainsKey(incMsg.SenderConnection))
+                    return;
+
+                handleConnectedMessage(incMsg, Connections[incMsg.SenderConnection]);
+            }
+        }
+
+        void handleConnectedMessage(NetIncomingMessage Message, int ClientID)
         {
 
         }

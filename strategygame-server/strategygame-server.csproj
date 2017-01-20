@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{303788A1-193E-4B1C-9466-C864241E40C0}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>strategygame_server</RootNamespace>
     <AssemblyName>strategygame-server</AssemblyName>
@@ -16,6 +16,8 @@
     </MonoGameContentBuilderExe>
     <MonoGameInstallDirectory Condition=" '$(OS)' != 'Unix' ">$(MSBuildProgramFiles32)</MonoGameInstallDirectory>
     <MonoGameInstallDirectory Condition=" '$(OS)' == 'Unix' ">$(MSBuildExtensionsPath)</MonoGameInstallDirectory>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -26,6 +28,7 @@
     <DefineConstants>DEBUG;TRACE;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -35,9 +38,13 @@
     <DefineConstants>TRACE;WINDOWS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>strategygame_server.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Server.cs" />

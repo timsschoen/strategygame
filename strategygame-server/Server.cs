@@ -4,7 +4,6 @@ using Microsoft.Xna.Framework.Input;
 using System.Threading;
 using strategygame_common;
 using System.Collections.Generic;
-using static strategygame_common.NetworkServer;
 
 namespace strategygame_server
 {
@@ -16,19 +15,24 @@ namespace strategygame_server
         ServerLobbySession lobbySession;
         Thread serverThread;
 
+        ILogger Logger = new ConsoleLogger();
+
         volatile bool StopFlag;
 
         public Server()
         {
             lobbySession = new ServerLobbySession();
             serverThread = new Thread(new ThreadStart(ServerLoop));
-            networkServer = new NetworkServer(new ConsoleLogger()); 
+            networkServer = new NetworkServer(Logger);
         }
         
         public void Start()
         {
-            if(serverThread.ThreadState == ThreadState.Unstarted && serverThread != null)
+            if (serverThread.ThreadState == ThreadState.Unstarted && serverThread != null)
+            {
                 serverThread.Start();
+                networkServer.Start();
+            }
         }
 
         void ServerLoop()
@@ -38,6 +42,7 @@ namespace strategygame_server
                 IMessage message = networkServer.TryGetNewMessage();
                 if(message != null)
                 {
+                    
                     //sort between general, lobby and game messages
                 }      
                 

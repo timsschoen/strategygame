@@ -4,29 +4,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Threading;
+using Lidgren.Network;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace strategygame_common
 {
-    class NetworkClient : INetworkSender
+    public class NetworkClient : INetworkSender
     {
         Thread clientThread;
-        TcpClient tcpClient;
+        NetClient NetClient;
 
         public bool isConnected { get; private set; } = false;
+        public bool StopFlag { get; private set; }
+        private NetConnection Connection;
 
         private ConcurrentQueue<IMessage> MessagesToSend;
         private ConcurrentQueue<IMessage> ReceivedMessages;
-        
-        //TODO Thread Safety
-        private Lookup<string, NetwokMessageHandler> HandlersForMessageType;
+        private ILogger Logger;
 
-        public NetworkClient()
+        public NetworkClient(ILogger Logger)
         {
             clientThread = new Thread(new ThreadStart(NetworkUpdateLoop));
-            tcpClient = new TcpClient();
-
-            //HandlersForMessageType = Lookup< string, NetwokMessageHandler >
-
+            
+            NetClient = new NetClient(new NetPeerConfiguration("StrategyGame"));
+            this.Logger = Logger;
+            
             MessagesToSend = new ConcurrentQueue<IMessage>();
             ReceivedMessages = new ConcurrentQueue<IMessage>();
         }
@@ -35,27 +38,67 @@ namespace strategygame_common
         {
             try
             {
-                tcpClient.Connect(IPAddress, Port);
+                NetClient.Start();
+                Connection = NetClient.Connect(IPAddress, Port);
                 isConnected = true;
+                if (clientThread.ThreadState == ThreadState.Unstarted || clientThread.ThreadState == ThreadState.Stopped)
+                    clientThread.Start();
+
+                Logger.Log(LogPriority.Important, "NetworkClient", "Connected to Server");
+
                 return true;
             }
             catch(Exception ex)
             {
                 isConnected = false;
+                Logger.Log(LogPriority.Important, "NetworkClient", "Could not connect " + ex.Message);
                 return false;
             }
         }
 
         void NetworkUpdateLoop()
         {
-            //TODO
+            List<NetIncomingMessage> IncomingMessages = new List<NetIncomingMessage>();
+            JsonSerializer JsonReader = new JsonSerializer();
+            while(!StopFlag && Thread.CurrentThread.ThreadState == ThreadState.Running)
+            {
+                if(Connection != null && isConnected)
+                { 
+                    //look if we got any messages
+                    NetClient.ReadMessages(IncomingMessages);
+
+                    for (int i = 0; i < IncomingMessages.Count; i++)
+                    {
+                        if (IncomingMessages[i].MessageType == NetIncomingMessageType.Data)
+                        {
+                            string Message = IncomingMessages[i].ReadString();
+                            Logger.Log(LogPriority.Verbose, "Network", "Received Message: " + Message);
+                            ReceivedMessages.Enqueue(JsonReader.Deserialize<IMessage>(new JsonTextReader(new StringReader(Message))));
+                        }
+                    }
+
+                    IncomingMessages.Clear();
+
+                    //send Messages we need to send
+                    IMessage toSend;
+                    while(MessagesToSend.TryDequeue(out toSend))
+                    {
+                        StringWriter stringWriter = new StringWriter();
+                        JsonReader.Serialize(new JsonTextWriter(stringWriter), toSend);
+                        string Message = stringWriter.ToString();
+                        NetClient.SendMessage(NetClient.CreateMessage(Message), NetDeliveryMethod.ReliableOrdered);
+                    }
+                }
+
+                NetClient.Disconnect("Closed");
+            }
         }
 
-        void INetworkSender.addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType)
+        void Stop()
         {
-            //HandlersForMessageType.
+            StopFlag = true;
         }
-
+        
         void INetworkSender.sendOverNetwork(IMessage toSend)
         {
             MessagesToSend.Enqueue(toSend);

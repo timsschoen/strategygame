@@ -46,7 +46,7 @@ namespace strategygame_common
             Camera.setMapSize(Map.Width, Map.Height);
         }
 
-        public void Draw(Map Map, List<IMapRenderComponent> MapEntities, SpriteBatch spriteBatch, float layerDepth)
+        public void Draw(Map Map, Dictionary<int, IEntity> MapEntities, SpriteBatch spriteBatch, float layerDepth)
         {
             //Get Rectangle to draw from camera
             Rectangle toDraw = Camera.getRectangleToDraw();

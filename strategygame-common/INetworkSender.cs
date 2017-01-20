@@ -4,7 +4,6 @@
 
     interface INetworkSender
     {
-        void sendOverNetwork(IMessage toSend);
-        void addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType);        
+        void sendOverNetwork(IMessage toSend);     
     }
 }

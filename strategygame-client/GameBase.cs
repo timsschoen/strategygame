@@ -25,6 +25,9 @@ namespace strategygame_client
         Texture2D Cursor;
         Map Map;
         MapRenderer MapRenderer;
+
+        NetworkClient Client;
+
         Dictionary<int, IEntity> Entities;
 
         public GameBase()
@@ -34,12 +37,10 @@ namespace strategygame_client
             graphics.PreferredBackBufferWidth = 1500;
             Content.RootDirectory = "Content";
             Entities = new Dictionary<int, IEntity>();
+            Client = new NetworkClient(new ConsoleLogger());
+            Client.Connect("127.0.0.1", 6679);
         }
-
-        Dictionary<int, IEntity> getAllEntitiesWithType(Type type)
-        {
-            Entities.
-        }
+        
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -103,7 +104,7 @@ namespace strategygame_client
             spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
             spriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), null, Color.White, 0.0f, new Vector2(), 1.0f, SpriteEffects.None, 1.0f);
-            MapRenderer.Draw(Map, spriteBatch, 0.0f);
+            MapRenderer.Draw(Map, Entities, spriteBatch, 0.0f);
 
             spriteBatch.End();
             // TODO: Add your drawing code here
