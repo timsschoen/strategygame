@@ -1,4 +1,5 @@
-﻿using Microsoft.Xna.Framework.Graphics;
+﻿using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.Graphics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,11 @@ namespace strategygame_client
 {
     class WindowManager
     {
-        List<Window> Windows;
+        Window VillageWindow;
 
-        public WindowManager()
+        public WindowManager(ContentManager Content)
         {
-            Windows = new List<Window>();
+            VillageWindow = new Window("Dorf", Content, 100, 100);
         }
 
         public void addWindow(Window window)
@@ -21,9 +22,14 @@ namespace strategygame_client
 
         }
 
+        public void Update()
+        {
+            VillageWindow.Update();
+        }
+
         public void Draw(SpriteBatch spriteBatch, float Layer)
         {
-
+            VillageWindow.Draw(spriteBatch, Layer);
         }
     }
 }

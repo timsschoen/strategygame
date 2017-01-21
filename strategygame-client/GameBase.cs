@@ -25,6 +25,7 @@ namespace strategygame_client
         Texture2D Cursor;
         Map Map;
         MapRenderer MapRenderer;
+        WindowManager Windows;
 
         NetworkClient Client;
 
@@ -54,6 +55,7 @@ namespace strategygame_client
 
             base.Initialize();
             Map = Map.LoadFromFolder(this.GraphicsDevice, Content.RootDirectory + "/Maps/1");
+            Windows = new WindowManager(Content);
             MapRenderer = new MapRenderer(Content, Map, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
         }
 
@@ -90,6 +92,7 @@ namespace strategygame_client
 
             // TODO: Add your update logic here
             MapRenderer.Update(gameTime);
+            Windows.Update();
 
             base.Update(gameTime);
         }
@@ -105,6 +108,7 @@ namespace strategygame_client
 
             spriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), null, Color.White, 0.0f, new Vector2(), 1.0f, SpriteEffects.None, 1.0f);
             MapRenderer.Draw(Map, Entities, spriteBatch, 0.0f);
+            Windows.Draw(spriteBatch, 0.2f);
 
             spriteBatch.End();
             // TODO: Add your drawing code here

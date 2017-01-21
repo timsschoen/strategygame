@@ -40,11 +40,9 @@ namespace strategygame_common
             {
                 NetClient.Start();
                 Connection = NetClient.Connect(IPAddress, Port);
-                isConnected = true;
                 if (clientThread.ThreadState == ThreadState.Unstarted || clientThread.ThreadState == ThreadState.Stopped)
                     clientThread.Start();
 
-                Logger.Log(LogPriority.Important, "NetworkClient", "Connected to Server");
 
                 return true;
             }
@@ -62,7 +60,7 @@ namespace strategygame_common
             JsonSerializer JsonReader = new JsonSerializer();
             while(!StopFlag && Thread.CurrentThread.ThreadState == ThreadState.Running)
             {
-                if(Connection != null && isConnected)
+                if(NetClient != null)
                 { 
                     //look if we got any messages
                     NetClient.ReadMessages(IncomingMessages);
@@ -74,6 +72,11 @@ namespace strategygame_common
                             string Message = IncomingMessages[i].ReadString();
                             Logger.Log(LogPriority.Verbose, "Network", "Received Message: " + Message);
                             ReceivedMessages.Enqueue(JsonReader.Deserialize<IMessage>(new JsonTextReader(new StringReader(Message))));
+                        }
+                        else if(IncomingMessages[i].MessageType == NetIncomingMessageType.ConnectionApproval)
+                        {
+                            isConnected = true;
+                            Logger.Log(LogPriority.Important, "NetworkClient", "Connected to Server");
                         }
                     }
 
