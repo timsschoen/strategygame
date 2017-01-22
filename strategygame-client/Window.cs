@@ -13,7 +13,7 @@ namespace strategygame_client
     abstract class Window
     {
         SpriteFont Font;
-        string Name;
+        protected string Name;
         Texture2D Background;
         Texture2D CloseSymbol;
         protected Rectangle WindowRectangle;

@@ -73,10 +73,13 @@ namespace strategygame_common
                             Logger.Log(LogPriority.Verbose, "Network", "Received Message: " + Message);
                             ReceivedMessages.Enqueue(JsonReader.Deserialize<IMessage>(new JsonTextReader(new StringReader(Message))));
                         }
-                        else if(IncomingMessages[i].MessageType == NetIncomingMessageType.ConnectionApproval)
+                        else if(IncomingMessages[i].MessageType == NetIncomingMessageType.StatusChanged)
                         {
-                            isConnected = true;
-                            Logger.Log(LogPriority.Important, "NetworkClient", "Connected to Server");
+                            if (IncomingMessages[i].SenderConnection.Status == NetConnectionStatus.InitiatedConnect || IncomingMessages[i].SenderConnection.Status == NetConnectionStatus.Connected)
+                            {
+                                isConnected = true;
+                                Logger.Log(LogPriority.Important, "NetworkClient", "Connected to Server");
+                            }
                         }
                     }
 
@@ -97,12 +100,21 @@ namespace strategygame_common
             }
         }
 
-        void Stop()
+        public IMessage TryGetMessage()
+        {
+            IMessage Result;
+            if (!ReceivedMessages.TryDequeue(out Result))
+                return null;
+
+            return Result;
+        }
+
+        public void Stop()
         {
             StopFlag = true;
         }
         
-        void INetworkSender.sendOverNetwork(IMessage toSend)
+        public void sendOverNetwork(IMessage toSend)
         {
             MessagesToSend.Enqueue(toSend);
         }

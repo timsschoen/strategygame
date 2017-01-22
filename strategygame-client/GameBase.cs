@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using strategygame_common;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace strategygame_client
 {
@@ -31,6 +32,13 @@ namespace strategygame_client
 
         Dictionary<int, IEntity> Entities;
 
+        //Ticks and Time
+        long Ticks = 0;
+        long LastUpdateTicks;
+
+        //Speed, set 0 for pause
+        int GameSpeed = 1;
+
         public GameBase()
         {
             graphics = new GraphicsDeviceManager(this);
@@ -39,6 +47,7 @@ namespace strategygame_client
             Content.RootDirectory = "Content";
             Entities = new Dictionary<int, IEntity>();
             Client = new NetworkClient(new ConsoleLogger());
+            Thread.Sleep(200); 
             Client.Connect("127.0.0.1", 6679);
         }
         
@@ -57,6 +66,7 @@ namespace strategygame_client
             Map = Map.LoadFromFolder(this.GraphicsDevice, Content.RootDirectory + "/Maps/1");
             Windows = new WindowManager(Content);
             MapRenderer = new MapRenderer(Content, Map, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
+            LastUpdateTicks = DateTime.Now.Ticks;
         }
 
         /// <summary>
@@ -68,6 +78,7 @@ namespace strategygame_client
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Cursor = Content.Load<Texture2D>("UI/cursor");
+
             // TODO: use this.Content to load your game content here
         }
 
@@ -90,11 +101,29 @@ namespace strategygame_client
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
 
+            UpdateNetMessages();
+
+            Ticks += GameSpeed * (DateTime.Now.Ticks - LastUpdateTicks);
+
             // TODO: Add your update logic here
             MapRenderer.Update(gameTime);
             Windows.Update();
 
             base.Update(gameTime);
+        }
+        
+        private void UpdateNetMessages()
+        {
+            IMessage newMessage;
+            if ((newMessage = Client.TryGetMessage()) != null)
+            {
+                if(newMessage is EntityMessage)
+                {
+                    EntityMessage EntityMessage = (EntityMessage)newMessage;
+
+                    Entities.Add(EntityMessage.EntityID, EntityMessage.Entity);
+                }
+            }
         }
 
         /// <summary>

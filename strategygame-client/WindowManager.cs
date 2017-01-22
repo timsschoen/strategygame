@@ -10,11 +10,11 @@ namespace strategygame_client
 {
     class WindowManager
     {
-        Window VillageWindow;
+        public VillageWindow VillageWindow;
 
         public WindowManager(ContentManager Content)
         {
-            VillageWindow = new Window("Dorf", Content, 100, 100);
+            VillageWindow = new VillageWindow("Dorf", Content, 100, 100);
         }
 
         public void addWindow(Window window)

@@ -8,20 +8,25 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using strategygame_common;
 
-namespace strategygame_common
+namespace strategygame_client
 {
     public class MapRenderer
     {
         public Camera Camera;
         private Map Map;
         public Dictionary<MapCellType, Texture2D> BaseTextures;
+        public Dictionary<string, Texture2D> MapEntityTextures;
+
+        private ContentManager Content;
 
         public MapRenderer(ContentManager contentManager, Map Map, int ScreenWidth, int ScreenHeight)
         {
             Camera = new Camera(25, ScreenWidth, ScreenHeight, Map.Width, Map.Height);
             BaseTextures = new Dictionary<MapCellType, Texture2D>();
             this.Map = Map;
+            this.Content = contentManager;
 
             BaseTextures.Add(MapCellType.Flatland, contentManager.Load<Texture2D>("Map/BaseTextures/Flatland"));
             BaseTextures.Add(MapCellType.Mountain, contentManager.Load<Texture2D>("Map/BaseTextures/Mountain"));
@@ -66,13 +71,35 @@ namespace strategygame_common
 
                     //TODO: Tint according to Fruchtbarkeit
 
-                    //construct destination rectangle
+                    //get destination rectangle
                     Rectangle cellRect = Camera.getRectangleToDrawCell(x, y);
 
                     spriteBatch.Draw(BaseTexture, cellRect, null, Color.White, 0.0f, new Vector2(), SpriteEffects.None, layerDepth);
                 }
             }
 
+            foreach(IEntity entity in MapEntities.Values)
+            {
+                if(entity is IMapComponent)
+                {
+                    IMapComponent MapComponent = (IMapComponent)entity;
+                    
+                    //get destination rectangle
+                    Rectangle cellRect = Camera.getRectangleToDrawCell((int)MapComponent.Position.X, (int)MapComponent.Position.Y);
+
+                    Color TintColor = Color.White;
+
+                    if (entity is ISelectableMapComponent && (entity as ISelectableMapComponent)?.isSelected == true)
+                        TintColor = Color.Blue;
+
+                    string TypeName = MapComponent.GetType().ToString();
+
+                    if (!MapEntityTextures.ContainsKey(TypeName))
+                        MapEntityTextures.Add(TypeName, Content.Load<Texture2D>("Map/Entities/" + TypeName));
+
+                    spriteBatch.Draw(MapEntityTextures[TypeName], cellRect, null, TintColor, 0.0f, Vector2.Zero, SpriteEffects.None, layerDepth + 0.01f);
+                }
+            }
         }                
     }
 }

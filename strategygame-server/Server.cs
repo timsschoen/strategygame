@@ -3,7 +3,9 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System.Threading;
 using strategygame_common;
+using Newtonsoft.Json;
 using System.Collections.Generic;
+using System.IO;
 
 namespace strategygame_server
 {
@@ -21,7 +23,13 @@ namespace strategygame_server
 
         public Server()
         {
-            lobbySession = new ServerLobbySession();
+            lobbySession = new ServerLobbySession();                      
+
+            JsonSerializer Serializer = new JsonSerializer();
+
+            GameConfiguration Configuration = Serializer.Deserialize<GameConfiguration>(new JsonTextReader(new StreamReader(File.OpenRead("Config.json"))));
+
+            gameSession = new ServerGameSession(networkServer, Logger, Configuration);
             serverThread = new Thread(new ThreadStart(ServerLoop));
             networkServer = new NetworkServer(Logger);
         }

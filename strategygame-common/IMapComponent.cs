@@ -8,9 +8,8 @@ using System.Threading.Tasks;
 
 namespace strategygame_common
 {
-    public interface IMapRenderComponent
+    public interface IMapComponent
     {
         Vector2 Position { get; set; }
-        Texture2D Texture { get; set; }
     }
 }

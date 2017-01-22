@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace strategygame_common
 {
-    public class NetworkServer
+    public class NetworkServer : INetworkSender
     {
         private Thread serverThread;
 
@@ -53,15 +53,16 @@ namespace strategygame_common
         {
             NetPeerConfiguration config = new NetPeerConfiguration("StrategyGame");
             config.Port = 6679;
+            config.AcceptIncomingConnections = true;
             LidgrenServer = new NetServer(config);
             LidgrenServer.Start();
+            Logger.Log(LogPriority.Important, "NetworkServer", "Server started.");
 
             JsonSerializer JsonReader = new JsonSerializer();
             List<NetIncomingMessage> IncomingMessages = new List<NetIncomingMessage>();
 
             while (!StopFlag)
             {
-
                 LidgrenServer.ReadMessages(IncomingMessages);
 
                 for(int i = 0; i < IncomingMessages.Count; i++)
@@ -99,6 +100,9 @@ namespace strategygame_common
                 }
                 else if(incMsg.SenderConnection.Status == NetConnectionStatus.Disconnected || incMsg.SenderConnection.Status == NetConnectionStatus.Disconnecting)
                 {
+                    if (!Connections.ContainsKey(incMsg.SenderConnection))
+                        return;
+
                     int id = Connections[incMsg.SenderConnection];
                     Connections.Remove(incMsg.SenderConnection);
                     connectedClients.Remove(id);
@@ -118,64 +122,28 @@ namespace strategygame_common
         {
 
         }
-                
-        void addOnMessageReceivedHandler(NetwokMessageHandler handler, string listenForMessageType)
+         
+        public void sendOverNetwork(IMessage toSend)
         {
             throw new NotImplementedException();
         }
+    }
 
-        void sendOverNetwork(IMessage toSend)
+    public class Client
+    {
+        public NetConnection Connection;
+
+        public Client(NetConnection Connection)
         {
-            throw new NotImplementedException();
+            this.Connection = Connection;
         }
+    }
 
-        public class Client
+    public class NewClientConnectedMessage : BaseMessage
+    {
+        public NewClientConnectedMessage(int ClientID)
         {
-            public NetConnection Connection;
-
-            public Client(NetConnection Connection)
-            {
-                this.Connection = Connection;
-            }
-        }
-
-        public class RawMessage : IMessage
-        {
-            public int ClientID { get; set; }
-
-            byte[] content;
-
-            public byte[] GetNetworkBytes()
-            {
-                return content;
-            }
-
-            public bool LoadFromNetworkBytes(byte[] content, int clientID)
-            {
-                this.content = content;
-                this.ClientID = clientID;
-                return true;
-            }
-        }
-
-        public class NewClientConnectedMessage : IMessage
-        {
-            public int ClientID { get; set; }
-
-            public byte[] GetNetworkBytes()
-            {
-                return null;
-            }
-
-            public bool LoadFromNetworkBytes(byte[] content, int clientID)
-            {
-                return false;
-            }
-
-            public NewClientConnectedMessage(int ClientID)
-            {
-                this.ClientID = ClientID;
-            }
+            this.ClientID = ClientID;
         }
     }
 }

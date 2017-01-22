@@ -11,7 +11,7 @@ namespace strategygame_server
     {
         List<ServerPlayer> Players;
         
-        void handleMessage(RawMessage message)
+        void handleMessage(IMessage message)
         {
 
         }   
