@@ -41,6 +41,7 @@ namespace strategygame_server
             if(Message is NewClientConnectedMessage)
             {
                 int ID = ((NewClientConnectedMessage)Message).ClientID;
+                NetworkSender.sendOverNetwork(new GameConfigurationMessage(Configuration));
             }
         }
 

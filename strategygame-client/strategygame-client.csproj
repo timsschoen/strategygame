@@ -45,6 +45,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BuildingWindow.cs" />
+    <Compile Include="ClientGameSession.cs" />
+    <Compile Include="ClientLobbySession.cs" />
     <Compile Include="GameBase.cs" />
     <Compile Include="MapRenderer.cs" />
     <Compile Include="MouseHandler.cs" />

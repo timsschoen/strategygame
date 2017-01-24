@@ -34,9 +34,9 @@ namespace strategygame_client
             BaseTextures.Add(MapCellType.Water, contentManager.Load<Texture2D>("Map/BaseTextures/Water"));
         }
 
-        public void Update(GameTime gameTime)
+        public void Update()
         {
-            Camera.Update(gameTime);
+            Camera.Update();
         }        
 
         private Vector2 Unproject(Vector2 A)

@@ -128,5 +128,5 @@ namespace strategygame_common
         {
             MessagesToSend.Enqueue(toSend);
         }
-    }
+    }    
 }

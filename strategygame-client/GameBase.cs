@@ -20,34 +20,23 @@ namespace strategygame_client
             InGame
         }
 
+        GameState State = GameState.Lobby;
+
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         
-        Map Map;
-        MapRenderer MapRenderer;
-        WindowManager Windows;
-        MouseHandler MouseHandler;
-
         NetworkClient Client;
 
-        Dictionary<int, IEntity> Entities;
+        ClientGameSession GameSession;
 
         ILogger Logger = new ConsoleLogger();
-
-        //Ticks and Time
-        long Ticks = 0;
-        long LastUpdateTicks;
-
-        //Speed, set 0 for pause
-        int GameSpeed = 1;
-
+        
         public GameBase()
         {
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferHeight = 1000;
             graphics.PreferredBackBufferWidth = 1500;
             Content.RootDirectory = "Content";
-            Entities = new Dictionary<int, IEntity>();
             Client = new NetworkClient(new ConsoleLogger());
             Thread.Sleep(200); 
             Client.Connect("127.0.0.1", 6679);            
@@ -57,6 +46,9 @@ namespace strategygame_client
         {
             base.OnExiting(sender, args);
             Client.Stop();
+
+            if(GameSession != null)
+                GameSession.Stop();
         }
 
 
@@ -71,46 +63,11 @@ namespace strategygame_client
             // TODO: Add your initialization logic here
 
             base.Initialize();
-            Map = Map.LoadFromFolder(this.GraphicsDevice, Content.RootDirectory + "/Maps/1");
-            Windows = new WindowManager(Content);
-            MapRenderer = new MapRenderer(Content, Map, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
-            MouseHandler = new MouseHandler(OnMouseClick, OnSelection, Content);
-            LastUpdateTicks = DateTime.Now.Ticks;
-
+                        
             Mouse.WindowHandle = Window.Handle;
         }
 
-        public void OnMouseClick(Point ClickPos)
-        {
-            if(!Windows.ContainsPixel(ClickPos))
-            {
-                int? EntityClicked = MapRenderer.getClickedEntity(ref Entities, ClickPos);
-
-                if (EntityClicked != null)
-                {
-                    Logger.Log(LogPriority.Normal, "EntityClicked", "ID: " + EntityClicked + ", Name: " + Entities[EntityClicked.Value].Name + ", Owner: " + Entities[EntityClicked.Value].Owner);
-
-                    if (!Entities.ContainsKey(EntityClicked.Value))
-                        return;
-
-                    IEntity Entity = Entities[EntityClicked.Value];
-
-                    if (Entity is IVillage)
-                        Windows.VillageWindow.setVillage(EntityClicked.Value);
-                }
-                else
-                {
-                    Point ClickedTile = MapRenderer.getClickedHex(ClickPos);
-                    Logger.Log(LogPriority.Normal, "TileClicked", "Position: " + ClickedTile.X + "," + ClickedTile.Y);
-                }
-            }
-        }
-
-        public void OnSelection(Point A, Point B)
-        {
-
-        }
-
+        
         /// <summary>
         /// LoadContent will be called once per game and is the place to load
         /// all of your content.
@@ -118,9 +75,8 @@ namespace strategygame_client
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            // TODO: use this.Content to load your game content here
+            spriteBatch = new SpriteBatch(GraphicsDevice);    
+                    
         }
 
         /// <summary>
@@ -140,13 +96,9 @@ namespace strategygame_client
         protected override void Update(GameTime gameTime)
         {
             UpdateNetMessages();
-            MouseHandler.Update();
 
-            Ticks += GameSpeed * (DateTime.Now.Ticks - LastUpdateTicks);
-
-            // TODO: Add your update logic here
-            MapRenderer.Update(gameTime);
-            Windows.Update();
+            if(State == GameState.InGame)
+                GameSession.Update();
 
             base.Update(gameTime);
         }
@@ -156,12 +108,20 @@ namespace strategygame_client
             IMessage newMessage;
             if ((newMessage = Client.TryGetMessage()) != null)
             {
-                if(newMessage is EntityMessage)
+                if(State == GameState.InGame)
+                    GameSession.HandleNetworkMessage(newMessage);
+                else if(newMessage is GameConfigurationMessage)
                 {
-                    EntityMessage EntityMessage = (EntityMessage)newMessage;
-                    EntityMessage.Entity.ClientInitialize();
-                    Entities.Add(EntityMessage.EntityID, EntityMessage.Entity);
+                    GameSession = new ClientGameSession(((GameConfigurationMessage)newMessage).Configuration, 
+                        GraphicsDevice,
+                        Content, 
+                        Client, 
+                        Logger, 
+                        graphics.PreferredBackBufferWidth, 
+                        graphics.PreferredBackBufferHeight);
+                    State = GameState.InGame;
                 }
+
             }
         }
 
@@ -174,12 +134,10 @@ namespace strategygame_client
             GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-            MouseHandler.Draw(spriteBatch, 1f);
-            MapRenderer.Draw(Map, Entities, spriteBatch, 0.0f);
-            Windows.Draw(spriteBatch, 0.2f);
+            if(State == GameState.InGame)
+                GameSession.Draw(spriteBatch);
 
             spriteBatch.End();
-            // TODO: Add your drawing code here
 
             base.Draw(gameTime);
         }

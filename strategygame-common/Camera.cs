@@ -78,7 +78,7 @@ namespace strategygame_common
             return new Point();
         }
 
-        public void Update(GameTime gameTime)
+        public void Update()
         {
             TopLeftCoordinates += Scrolling;
 
