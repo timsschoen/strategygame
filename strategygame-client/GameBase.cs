@@ -22,15 +22,17 @@ namespace strategygame_client
 
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
-
-        Texture2D Cursor;
+        
         Map Map;
         MapRenderer MapRenderer;
         WindowManager Windows;
+        MouseHandler MouseHandler;
 
         NetworkClient Client;
 
         Dictionary<int, IEntity> Entities;
+
+        ILogger Logger = new ConsoleLogger();
 
         //Ticks and Time
         long Ticks = 0;
@@ -48,9 +50,15 @@ namespace strategygame_client
             Entities = new Dictionary<int, IEntity>();
             Client = new NetworkClient(new ConsoleLogger());
             Thread.Sleep(200); 
-            Client.Connect("127.0.0.1", 6679);
+            Client.Connect("127.0.0.1", 6679);            
         }
-        
+
+        protected override void OnExiting(object sender, EventArgs args)
+        {
+            base.OnExiting(sender, args);
+            Client.Stop();
+        }
+
 
         /// <summary>
         /// Allows the game to perform any initialization it needs to before starting to run.
@@ -66,7 +74,41 @@ namespace strategygame_client
             Map = Map.LoadFromFolder(this.GraphicsDevice, Content.RootDirectory + "/Maps/1");
             Windows = new WindowManager(Content);
             MapRenderer = new MapRenderer(Content, Map, graphics.PreferredBackBufferWidth, graphics.PreferredBackBufferHeight);
+            MouseHandler = new MouseHandler(OnMouseClick, OnSelection, Content);
             LastUpdateTicks = DateTime.Now.Ticks;
+
+            Mouse.WindowHandle = Window.Handle;
+        }
+
+        public void OnMouseClick(Point ClickPos)
+        {
+            if(!Windows.ContainsPixel(ClickPos))
+            {
+                int? EntityClicked = MapRenderer.getClickedEntity(ref Entities, ClickPos);
+
+                if (EntityClicked != null)
+                {
+                    Logger.Log(LogPriority.Normal, "EntityClicked", "ID: " + EntityClicked + ", Name: " + Entities[EntityClicked.Value].Name + ", Owner: " + Entities[EntityClicked.Value].Owner);
+
+                    if (!Entities.ContainsKey(EntityClicked.Value))
+                        return;
+
+                    IEntity Entity = Entities[EntityClicked.Value];
+
+                    if (Entity is IVillage)
+                        Windows.VillageWindow.setVillage(EntityClicked.Value);
+                }
+                else
+                {
+                    Point ClickedTile = MapRenderer.getClickedHex(ClickPos);
+                    Logger.Log(LogPriority.Normal, "TileClicked", "Position: " + ClickedTile.X + "," + ClickedTile.Y);
+                }
+            }
+        }
+
+        public void OnSelection(Point A, Point B)
+        {
+
         }
 
         /// <summary>
@@ -77,7 +119,6 @@ namespace strategygame_client
         {
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
-            Cursor = Content.Load<Texture2D>("UI/cursor");
 
             // TODO: use this.Content to load your game content here
         }
@@ -98,10 +139,8 @@ namespace strategygame_client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
-                Exit();
-
             UpdateNetMessages();
+            MouseHandler.Update();
 
             Ticks += GameSpeed * (DateTime.Now.Ticks - LastUpdateTicks);
 
@@ -120,7 +159,7 @@ namespace strategygame_client
                 if(newMessage is EntityMessage)
                 {
                     EntityMessage EntityMessage = (EntityMessage)newMessage;
-
+                    EntityMessage.Entity.ClientInitialize();
                     Entities.Add(EntityMessage.EntityID, EntityMessage.Entity);
                 }
             }
@@ -135,7 +174,7 @@ namespace strategygame_client
             GraphicsDevice.Clear(Color.Black);
             spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
-            spriteBatch.Draw(Cursor, new Vector2(Mouse.GetState().X, Mouse.GetState().Y), null, Color.White, 0.0f, new Vector2(), 1.0f, SpriteEffects.None, 1.0f);
+            MouseHandler.Draw(spriteBatch, 1f);
             MapRenderer.Draw(Map, Entities, spriteBatch, 0.0f);
             Windows.Draw(spriteBatch, 0.2f);
 

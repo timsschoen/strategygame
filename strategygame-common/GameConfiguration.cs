@@ -10,4 +10,9 @@ namespace strategygame_common
     {
         public BuildingInformation BuildingInformation;
     }
+
+    public class GameConfigurationMessage : BaseMessage
+    {
+        public GameConfiguration Configuration {get;set;}
+    }
 }

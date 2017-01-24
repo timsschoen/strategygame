@@ -14,6 +14,9 @@ namespace strategygame_common
         public Vector2 TopLeftCoordinates;
         private Vector2 Scrolling;
         public float Zoom;
+
+        private Matrix Projection;
+
         public long LastScrollKeypress;
 
         private int ScreenWidth;
@@ -34,22 +37,44 @@ namespace strategygame_common
             this.MapHeight = MapHeight;
         }
 
+        //http://gamedev.stackexchange.com/a/59450/42131
+        public Rectangle VisibleArea
+        {
+            get
+            {
+                var inverseViewMatrix = Matrix.Invert(Projection);
+                var tl = Vector2.Transform(Vector2.Zero, inverseViewMatrix);
+                var tr = Vector2.Transform(new Vector2(ScreenWidth, 0), inverseViewMatrix);
+                var bl = Vector2.Transform(new Vector2(0, ScreenHeight), inverseViewMatrix);
+                var br = Vector2.Transform(new Vector2(ScreenWidth, ScreenHeight), inverseViewMatrix);
+                var min = new Vector2(
+                    MathHelper.Min(tl.X, MathHelper.Min(tr.X, MathHelper.Min(bl.X, br.X))),
+                    MathHelper.Min(tl.Y, MathHelper.Min(tr.Y, MathHelper.Min(bl.Y, br.Y))));
+                var max = new Vector2(
+                    MathHelper.Max(tl.X, MathHelper.Max(tr.X, MathHelper.Max(bl.X, br.X))),
+                    MathHelper.Max(tl.Y, MathHelper.Max(tr.Y, MathHelper.Max(bl.Y, br.Y))));
+                return new Rectangle((int)min.X, (int)min.Y, (int)(max.X - min.X), (int)(max.Y - min.Y));
+            }
+        }
+
         public Camera(int Tilesize, int ScreenWidth, int ScreenHeight, int MapWidth, int MapHeight)
         {
             TopLeftCoordinates = new Vector2();
             Scrolling = new Vector2();
-            Zoom = 2f;
+            Zoom = 1f;
             TileSize = Tilesize;
 
             this.ScreenHeight = ScreenHeight;
             this.ScreenWidth = ScreenWidth;
             this.MapWidth = MapWidth;
             this.MapHeight = MapHeight;
+
+            Projection = Matrix.CreateTranslation(TopLeftCoordinates.X, TopLeftCoordinates.Y, 0) * Matrix.CreateScale(Zoom * TileSize, 0.75f * Zoom * TileSize, 1);
+
         }
 
         public Point Project(Vector2 Coordinates)
         {
-            //TODO
             return new Point();
         }
 
@@ -64,49 +89,79 @@ namespace strategygame_common
             KeyboardState KS = Keyboard.GetState();
             if (KS.IsKeyDown(Keys.Right) || ScreenWidth - MS.X < 50)
             {
-                Scrolling.X+= 0.07f;
+                Scrolling.X -= 0.07f;
             }
             if (KS.IsKeyDown(Keys.Left) || MS.X < 50)
             {
-                Scrolling.X -= 0.07f;
+                Scrolling.X += 0.07f;
             }
             if (KS.IsKeyDown(Keys.Up) || MS.Y < 50)
             {
-                Scrolling.Y -= 0.07f;
+                Scrolling.Y += 0.07f;
             }
             if (KS.IsKeyDown(Keys.Down) || ScreenHeight - MS.Y < 50)
             {
-                Scrolling.Y += 0.07f;
+                Scrolling.Y -= 0.07f;
             }
             
             //stop scrolling smoothly
             Scrolling /= 1.1f;
 
             //bounce back at the corners
-            if (TopLeftCoordinates.X < -5)
-                Scrolling.X -= (TopLeftCoordinates.X+5)/100;
+            Vector2 OffSetTopLeft = Unproject(Vector2.Zero)+new Vector2(5,5);
+            Vector2 OffSetBottomRight = Unproject(new Vector2(ScreenWidth, ScreenHeight))-new Vector2(MapWidth+5, MapHeight+5);            
 
-            if (TopLeftCoordinates.Y < -5)
-                Scrolling.Y -= (TopLeftCoordinates.Y+5) / 100;
+            OffSetTopLeft.X = (OffSetTopLeft.X > 0) ? 0 : OffSetTopLeft.X;
+            OffSetTopLeft.Y = (OffSetTopLeft.Y > 0) ? 0 : OffSetTopLeft.Y;
+            OffSetBottomRight.X = (OffSetBottomRight.X < 0) ? 0 : OffSetBottomRight.X;
+            OffSetBottomRight.Y = (OffSetBottomRight.Y < 0) ? 0 : OffSetBottomRight.Y;
 
-            if (BottomRight.Y > MapHeight)
-                Scrolling.Y -= (BottomRight.Y - MapHeight ) / 100;
+            Scrolling += 0.02f * (OffSetTopLeft + OffSetBottomRight);
 
-            if (BottomRight.X > MapWidth+5)
-                Scrolling.X -= (BottomRight.X - MapWidth - 5) / 100;
-        }       
-        
-        public Vector2 getClickedHex(Point clickPos)
+            Projection = Matrix.CreateTranslation(TopLeftCoordinates.X, TopLeftCoordinates.Y, 0) * Matrix.CreateScale(Zoom*TileSize, 0.75f*Zoom*TileSize, 1);
+        }
+
+        public Rectangle getRectangleToDraw()
         {
-            return new Vector2();
+            Rectangle Result = VisibleArea;
+
+            Result.X -= 3;
+            Result.Y -= 3;
+            Result.Width += 6;
+            Result.Height += 6;
+
+            Result.X = Math.Max(0, Result.X);
+            Result.Y = Math.Max(0, Result.Y);
+            Result.Width = Math.Min(MapWidth-Result.X-1, Result.Right);
+            Result.Height = Math.Min(MapHeight -Result.Y - 1, Result.Bottom);
+
+            return Result;
+        }
+
+        public Vector2 Unproject(Vector2 clickPos)
+        {        
+            return Vector2.Transform(clickPos, Matrix.Invert(Projection));
+        }
+
+        public Point getClickedHex(Vector2 clickPos)
+        {
+            Vector2 Unprojected = Unproject(clickPos);
+            Point toReturn = new Point((int)Unprojected.X, (int)Unprojected.Y);
+            if (toReturn.X % 2 == 1)
+                toReturn.Y = (int)(Unprojected.X + 0.5f);
+
+            return toReturn;
         }
 
         public Rectangle getRectangleToDrawCell(int x, int y)
         {
             Rectangle cellRect = new Rectangle();
 
-            cellRect.X = (int)((x - TopLeftCoordinates.X) * TileSize*Zoom);
-            cellRect.Y = (int)((0.75f*(y - TopLeftCoordinates.Y)) * TileSize*Zoom);
+            Vector2 CellBasePoint = new Vector2(x, y);
+            CellBasePoint = Vector2.Transform(CellBasePoint, Projection);
+
+            cellRect.X = (int)(CellBasePoint.X);
+            cellRect.Y = (int)(CellBasePoint.Y);
 
             if (y % 2 != 0)
                 cellRect.X += (int)(0.5f*TileSize * Zoom);
@@ -115,28 +170,6 @@ namespace strategygame_common
             cellRect.Height = (int)(TileSize * Zoom);
             
             return cellRect;
-        }
-
-        public Rectangle getRectangleToDraw()
-        {
-            Rectangle rect = new Rectangle();
-
-            rect.X = (int)Math.Floor(TopLeftCoordinates.X) - 1;
-            rect.Y = (int)Math.Floor(TopLeftCoordinates.Y) - 1;
-
-            rect.X = Math.Max(0, rect.X);
-            rect.Y = Math.Max(0, rect.Y);
-
-            rect.X = Math.Min(MapWidth-1, rect.X);
-            rect.Y = Math.Min(MapHeight-1, rect.Y);
-
-            rect.Width = (int)Math.Ceiling(ScreenWidth / (TileSize * Zoom)) + 3;
-            rect.Height = (int)Math.Ceiling(ScreenHeight*1.34f / (TileSize * Zoom)) + 3;
-
-            rect.Width = Math.Max(Math.Min(rect.Width, MapWidth - 1 - rect.X), 0);
-            rect.Height = Math.Max(Math.Min(rect.Height, MapHeight - 1 - rect.Y), 0);
-
-            return rect;
-        } 
+        }        
     }
 }

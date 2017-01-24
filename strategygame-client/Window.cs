@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using strategygame_common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,6 +19,11 @@ namespace strategygame_client
         Texture2D CloseSymbol;
         protected Rectangle WindowRectangle;
 
+        public virtual bool containsPoint(Point p)
+        {
+            return WindowRectangle.Contains(p);
+        }
+
         private Rectangle CloseSymbolRectangle
         {
             get
@@ -26,7 +32,13 @@ namespace strategygame_client
             }
         }
 
-        bool isOpen = true;
+        public void setPosition(int X, int Y)
+        {
+            WindowRectangle.X = X;
+            WindowRectangle.Y = Y;
+        }
+
+        protected bool isOpen = true;
 
         bool isDragged = false;
         Point DragStartRelativeToWindow;
@@ -39,8 +51,8 @@ namespace strategygame_client
 
             WindowRectangle = new Rectangle(X, Y, 100, 100);
 
-            Background = Content.Load<Texture2D>("UI/WindowBG");
-            CloseSymbol = Content.Load<Texture2D>("Ui/WindowX");
+            Background = Content.Load<Texture2D>("UI/Windows/WindowBG");
+            CloseSymbol = Content.Load<Texture2D>("Ui/Windows/WindowX");
         }
 
         public virtual void Draw(SpriteBatch spriteBatch, float Layer)

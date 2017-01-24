@@ -26,8 +26,10 @@ namespace strategygame_common
         public NetworkClient(ILogger Logger)
         {
             clientThread = new Thread(new ThreadStart(NetworkUpdateLoop));
-            
-            NetClient = new NetClient(new NetPeerConfiguration("StrategyGame"));
+
+            NetPeerConfiguration config = new NetPeerConfiguration("StrategyGame");
+            config.SetMessageTypeEnabled(NetIncomingMessageType.DebugMessage, true);
+            NetClient = new NetClient(config);
             this.Logger = Logger;
             
             MessagesToSend = new ConcurrentQueue<IMessage>();
@@ -39,7 +41,8 @@ namespace strategygame_common
             try
             {
                 NetClient.Start();
-                Connection = NetClient.Connect(IPAddress, Port);
+                
+                Connection = NetClient.Connect(IPAddress, Port, NetClient.CreateMessage("test"));
                 if (clientThread.ThreadState == ThreadState.Unstarted || clientThread.ThreadState == ThreadState.Stopped)
                     clientThread.Start();
 
@@ -70,8 +73,9 @@ namespace strategygame_common
                         if (IncomingMessages[i].MessageType == NetIncomingMessageType.Data)
                         {
                             string Message = IncomingMessages[i].ReadString();
-                            Logger.Log(LogPriority.Verbose, "Network", "Received Message: " + Message);
-                            ReceivedMessages.Enqueue(JsonReader.Deserialize<IMessage>(new JsonTextReader(new StringReader(Message))));
+                            JsonSerializerSettings settings = new JsonSerializerSettings();
+                            settings.TypeNameHandling = TypeNameHandling.Objects;
+                            ReceivedMessages.Enqueue((IMessage)JsonConvert.DeserializeObject(Message,settings));
                         }
                         else if(IncomingMessages[i].MessageType == NetIncomingMessageType.StatusChanged)
                         {
@@ -81,6 +85,13 @@ namespace strategygame_common
                                 Logger.Log(LogPriority.Important, "NetworkClient", "Connected to Server");
                             }
                         }
+                        else if(IncomingMessages[i].MessageType == NetIncomingMessageType.DebugMessage 
+                            || IncomingMessages[i].MessageType == NetIncomingMessageType.VerboseDebugMessage
+                            || IncomingMessages[i].MessageType == NetIncomingMessageType.Error
+                            || IncomingMessages[i].MessageType == NetIncomingMessageType.ErrorMessage)
+                        {
+                            Logger.Log(LogPriority.Important, "NetworkClient", IncomingMessages[i].ReadString()); 
+                        }
                     }
 
                     IncomingMessages.Clear();
@@ -89,15 +100,14 @@ namespace strategygame_common
                     IMessage toSend;
                     while(MessagesToSend.TryDequeue(out toSend))
                     {
-                        StringWriter stringWriter = new StringWriter();
-                        JsonReader.Serialize(new JsonTextWriter(stringWriter), toSend);
-                        string Message = stringWriter.ToString();
+                        JsonSerializerSettings settings = new JsonSerializerSettings();
+                        settings.TypeNameHandling = TypeNameHandling.Objects;
+                        string Message = JsonConvert.SerializeObject(toSend, settings);
                         NetClient.SendMessage(NetClient.CreateMessage(Message), NetDeliveryMethod.ReliableOrdered);
                     }
                 }
-
-                NetClient.Disconnect("Closed");
             }
+            NetClient.Disconnect("Closed");
         }
 
         public IMessage TryGetMessage()

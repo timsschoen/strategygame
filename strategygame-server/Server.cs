@@ -29,9 +29,9 @@ namespace strategygame_server
 
             GameConfiguration Configuration = Serializer.Deserialize<GameConfiguration>(new JsonTextReader(new StreamReader(File.OpenRead("Config.json"))));
 
+            networkServer = new NetworkServer(Logger);
             gameSession = new ServerGameSession(networkServer, Logger, Configuration);
             serverThread = new Thread(new ThreadStart(ServerLoop));
-            networkServer = new NetworkServer(Logger);
         }
         
         public void Start()
@@ -50,7 +50,8 @@ namespace strategygame_server
                 IMessage message = networkServer.TryGetNewMessage();
                 if(message != null)
                 {
-                    
+                    gameSession.handleNetworkMessage(message);
+
                     //sort between general, lobby and game messages
                 }      
                 

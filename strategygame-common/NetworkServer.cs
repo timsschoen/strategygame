@@ -53,7 +53,8 @@ namespace strategygame_common
         {
             NetPeerConfiguration config = new NetPeerConfiguration("StrategyGame");
             config.Port = 6679;
-            config.AcceptIncomingConnections = true;
+            config.SetMessageTypeEnabled(NetIncomingMessageType.DebugMessage, true);
+            config.SetMessageTypeEnabled(NetIncomingMessageType.ConnectionApproval, true);
             LidgrenServer = new NetServer(config);
             LidgrenServer.Start();
             Logger.Log(LogPriority.Important, "NetworkServer", "Server started.");
@@ -76,18 +77,28 @@ namespace strategygame_common
                 IMessage toSend;
                 while (OutgoingMessageQueue.TryDequeue(out toSend))
                 {
-                    StringWriter stringWriter = new StringWriter();
-                    JsonReader.Serialize(new JsonTextWriter(stringWriter), toSend);
-                    string Message = stringWriter.ToString();
-                    LidgrenServer.SendMessage(LidgrenServer.CreateMessage(Message), connectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
+                    JsonSerializerSettings settings = new JsonSerializerSettings();
+                    settings.TypeNameHandling = TypeNameHandling.Objects;
+                    string Message = JsonConvert.SerializeObject(toSend, settings);
+                    if(toSend.ClientID == -1)                    
+                        //Send to all
+                        foreach (KeyValuePair<int, Client> KVP in connectedClients)
+                        {
+                            LidgrenServer.SendMessage(LidgrenServer.CreateMessage(Message), KVP.Value.Connection, NetDeliveryMethod.ReliableOrdered);
+                        }                    
+                    else
+                        LidgrenServer.SendMessage(LidgrenServer.CreateMessage(Message), connectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
                 }
-
             }
         }        
 
         void handleMessage(NetIncomingMessage incMsg)
         {
-            if (incMsg.MessageType == NetIncomingMessageType.StatusChanged)
+            if(incMsg.MessageType == NetIncomingMessageType.ConnectionApproval)
+            {
+                incMsg.SenderConnection.Approve();
+            }
+            else if (incMsg.MessageType == NetIncomingMessageType.StatusChanged)
             {
                 if (incMsg.SenderConnection.Status == NetConnectionStatus.Connected)
                 {
@@ -118,14 +129,19 @@ namespace strategygame_common
             }
         }
 
-        void handleConnectedMessage(NetIncomingMessage Message, int ClientID)
+        void handleConnectedMessage(NetIncomingMessage incMsg, int ClientID)
         {
-
+            string Message = incMsg.ReadString();
+            JsonSerializerSettings settings = new JsonSerializerSettings();
+            settings.TypeNameHandling = TypeNameHandling.Objects;
+            IMessage ParsedMessage = (IMessage)JsonConvert.DeserializeObject(Message, settings);
+            ParsedMessage.ClientID = ClientID;
+            IncomingMessageQueue.Enqueue(ParsedMessage);
         }
          
         public void sendOverNetwork(IMessage toSend)
         {
-            throw new NotImplementedException();
+            OutgoingMessageQueue.Enqueue(toSend);
         }
     }
 

@@ -27,6 +27,7 @@ namespace strategygame_server
         public ServerGameSession(INetworkSender NetworkSender, ILogger Logger, GameConfiguration Configuration)
         {
             this.Configuration = Configuration;
+            Entities = new EntityCollection();
             VillageSystem = new VillageSystem(NetworkSender, Logger, Configuration.BuildingInformation);
             LastUpdateTicks = DateTime.Now.Ticks;
             this.NetworkSender = NetworkSender;
@@ -36,6 +37,11 @@ namespace strategygame_server
         public void handleNetworkMessage(IMessage Message)
         {
             VillageSystem.handleNetworkMessage(ref Entities, Message);
+
+            if(Message is NewClientConnectedMessage)
+            {
+                int ID = ((NewClientConnectedMessage)Message).ClientID;
+            }
         }
 
         public void Update()

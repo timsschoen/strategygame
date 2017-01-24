@@ -23,11 +23,11 @@ namespace strategygame_client
 
         public MapRenderer(ContentManager contentManager, Map Map, int ScreenWidth, int ScreenHeight)
         {
-            Camera = new Camera(25, ScreenWidth, ScreenHeight, Map.Width, Map.Height);
+            Camera = new Camera(50, ScreenWidth, ScreenHeight, Map.Width, Map.Height);
             BaseTextures = new Dictionary<MapCellType, Texture2D>();
             this.Map = Map;
             this.Content = contentManager;
-
+            MapEntityTextures = new Dictionary<string, Texture2D>();
             BaseTextures.Add(MapCellType.Flatland, contentManager.Load<Texture2D>("Map/BaseTextures/Flatland"));
             BaseTextures.Add(MapCellType.Mountain, contentManager.Load<Texture2D>("Map/BaseTextures/Mountain"));
             BaseTextures.Add(MapCellType.Hills, contentManager.Load<Texture2D>("Map/BaseTextures/Hills"));
@@ -39,9 +39,47 @@ namespace strategygame_client
             Camera.Update(gameTime);
         }        
 
-        public Vector2 getClickedHex(Point clickPos)
+        private Vector2 Unproject(Vector2 A)
         {
-            return Camera.getClickedHex(clickPos);
+            return Camera.Unproject(A);
+        }
+
+        public float UnprojectDistance(Vector2 A, Vector2 B)
+        {
+            return Vector2.Distance(Camera.Unproject(A), Camera.Unproject(B));
+        }
+
+        public Vector2 getClickedWorldPosition(Point clickPos)
+        {
+            return Camera.Unproject(new Vector2(clickPos.X, clickPos.Y));
+        }
+
+        public Point getClickedHex(Point clickPos)
+        {
+            return Camera.getClickedHex(new Vector2(clickPos.X, clickPos.Y));
+        }
+
+        public int? getClickedEntity(ref Dictionary<int, IEntity> Entities, Point MousePoint)
+        {
+            int? toReturn = null;
+            Vector2 MouseVector = new Vector2(MousePoint.X, MousePoint.Y);
+            Vector2 MapCoordinates = Camera.Unproject(MouseVector);
+            
+            //TODO: Sort
+            foreach (KeyValuePair<int,IEntity> entity in Entities)
+            {
+                if (entity.Value is IMapComponent)
+                {
+                    IMapComponent MapComponent = (IMapComponent)entity.Value;
+
+                    if(UnprojectDistance(MapCoordinates, MapComponent.Position) < MapComponent.Hitboxsize)
+                    {
+                        return entity.Key;
+                    }
+                }
+            }
+
+            return toReturn;
         }
 
         public void setMap(Map Map)
@@ -92,7 +130,8 @@ namespace strategygame_client
                     if (entity is ISelectableMapComponent && (entity as ISelectableMapComponent)?.isSelected == true)
                         TintColor = Color.Blue;
 
-                    string TypeName = MapComponent.GetType().ToString();
+                    string FullName = MapComponent.GetType().ToString();
+                    string TypeName = FullName.Substring(FullName.LastIndexOf(".") + 1);
 
                     if (!MapEntityTextures.ContainsKey(TypeName))
                         MapEntityTextures.Add(TypeName, Content.Load<Texture2D>("Map/Entities/" + TypeName));

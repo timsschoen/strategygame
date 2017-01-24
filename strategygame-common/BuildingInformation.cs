@@ -17,7 +17,7 @@ namespace strategygame_common
             BuildingData = new Dictionary<int, SingleBuildingInformation>();
         }
 
-        private bool Fulfills(List<Point> Requirements, List<Point> Current)
+        private bool Fulfills(List<Point> Requirements, Point[] Current)
         {
             for(int i = 0; i < Requirements.Count; i++)
             {
@@ -25,8 +25,11 @@ namespace strategygame_common
 
                 bool Fulfilled = false;
 
-                for(int j = 0; j < Current.Count; j++)
+                for(int j = 0; j < Current.Length; j++)
                 {
+                    if (Current[j] == null)
+                        continue;
+
                     if (Current[j].X == BuildingType && Current[j].Y >= Requirements[i].Y)
                     {
                         Fulfilled = true;
@@ -41,7 +44,7 @@ namespace strategygame_common
             return true;
         }
         
-        public bool canBuild(int BuildingType, int Level, List<Point> BuildingsInVillage, MapCellType MapCellType, IResources Resources)
+        public bool canBuild(int BuildingType, int Level, Point[] BuildingsInVillage, MapCellType MapCellType, IResources Resources)
         {
             //Building Exists
             if (!BuildingData.ContainsKey(BuildingType))
@@ -70,7 +73,7 @@ namespace strategygame_common
             
         }
 
-        public List<int> BuildableBuildings(List<Point> BuildingsInVillage, MapCellType MapCellType)
+        public List<int> BuildableBuildings(Point[] BuildingsInVillage, MapCellType MapCellType)
         {
             List<int> Result = new List<int>();
 
@@ -109,7 +112,15 @@ namespace strategygame_common
                 return null;
 
             return BuildingData[Building].Dependencies;
-        }        
+        }
+
+        public SingleBuildingInformation getBuildingInfo(int BuildingType)
+        {
+            if (!BuildingData.ContainsKey(BuildingType))
+                return null;
+
+            return BuildingData[BuildingType];
+        }
     }
 
     public class SingleBuildingInformation
@@ -128,9 +139,10 @@ namespace strategygame_common
 
     public interface IBuildingInformation
     {
-        bool canBuild(int BuildingType, int Level, List<Point> BuildingsInVillage, MapCellType MapCellType, IResources Resources);
-        List<int> BuildableBuildings(List<Point> BuildingsInVillage, MapCellType MapCellType);
+        bool canBuild(int BuildingType, int Level, Point[] BuildingsInVillage, MapCellType MapCellType, IResources Resources);
+        List<int> BuildableBuildings(Point[] BuildingsInVillage, MapCellType MapCellType);
         IResources getResources(int BuildingType, int Level);
         List<Point> getDependencies(int BuildingType);
+        SingleBuildingInformation getBuildingInfo(int BuildingType);
     }    
 }

@@ -11,5 +11,7 @@ namespace strategygame_common
     public interface IMapComponent
     {
         Vector2 Position { get; set; }
+        float Hitboxsize { get; set; }
+        //TODO: Hitboxtypes
     }
 }

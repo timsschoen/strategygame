@@ -10,6 +10,8 @@ namespace strategygame_common
     {
         string Name { get; set; }
         int Owner { get; set; }
+
+        void ClientInitialize();
     }
 
     public class EntityMessage : BaseMessage
@@ -32,6 +34,8 @@ namespace strategygame_common
             this.Name = Name;
             this.Owner = Owner;
         }
+
+        public void ClientInitialize() { }
 
         public string Name { get; set; }
         public int Owner { get; set; }

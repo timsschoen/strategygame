@@ -14,19 +14,33 @@ namespace strategygame_common
         public bool isSelected { get; set; } = false;
         public List<ConstructionProcess> ParallelConstructions { get; set; }
         public List<QueuedJob> ConstructionQueue { get; set; }
-        public List<Point> Buildings { get; set; }
+        public Point[] Buildings { get; set; }
+        public float Hitboxsize { get; set; }
+        public Point BuildingSlots { get; set; }
+        public MapCellType CellType { get; set; }
 
-        public Village(string Name, int Owner, Vector2 Position) : base(Name, Owner)
+        new public void ClientInitialize()
+        {
+            Hitboxsize = 0.5f;
+        }
+
+        public Village(string Name, int Owner, Vector2 Position, Point BuildingSlots, MapCellType CellType) : base(Name, Owner)
         {
             this.Position = Position;
+            this.BuildingSlots = BuildingSlots;
+            this.CellType = CellType;
         }        
     }
 
     public interface IVillage : IEntity, IResourceStore, ISelectableMapComponent
     {
-        List<Point> Buildings { get; set; }
+        Point[] Buildings { get; set; }
         List<ConstructionProcess> ParallelConstructions { get; set; }
         List<QueuedJob> ConstructionQueue { get; set; }
+
+        //X * Y Grid for buildings
+        Point BuildingSlots { get; set; }
+        MapCellType CellType { get; set; }
     }
 
     public class BuildingMessage : BaseMessage
