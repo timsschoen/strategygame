@@ -120,6 +120,7 @@ namespace strategygame_client
                         graphics.PreferredBackBufferWidth, 
                         graphics.PreferredBackBufferHeight);
                     State = GameState.InGame;
+                    Client.sendOverNetwork(new ClientLoadedMessage());
                 }
 
             }

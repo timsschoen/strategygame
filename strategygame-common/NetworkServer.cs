@@ -162,4 +162,7 @@ namespace strategygame_common
             this.ClientID = ClientID;
         }
     }
+
+    public class ClientLoadedMessage : BaseMessage
+    { }
 }

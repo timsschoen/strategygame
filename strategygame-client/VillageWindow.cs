@@ -40,7 +40,7 @@ namespace strategygame_client
         {
             base.Draw(spriteBatch, Layer);
 
-            if (Entities.ContainsKey(Village))
+            if (!Entities.ContainsKey(Village))
             {
                 isOpen = false;
                 return;

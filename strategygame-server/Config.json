@@ -1,0 +1,32 @@
+{
+  "BuildingInformation": {
+  "BuildingData": {
+    "1": {
+      "Name": "Rathaus",
+      "Description": "Hauptgebäude",
+      "Dependencies": [      ],
+      "CellType": null,
+      "ConstructionResources":  [  
+      { "Content" :{ "1": "50",  "2": "50"} },
+      { "Content" :{"1": "75",  "2": "75" } },
+      { "Content" :{ "1": "125",  "2": "125" } }
+      ],
+      "BuildingEffects": null
+    },
+    "2": {
+      "Name": "Forstamt",
+      "Description": "Produziert Holz",
+      "Dependencies": [   { "X": "1", "Y": "0" }   ],
+      "CellType": null,
+      "ConstructionResources":  [  
+      { "Content" :{ "1": "10",  "2": "50" } },
+      { "Content" :{ "1": "20",  "2": "75" } },
+      { "Content" :{ "1": "30",  "2": "125" } }
+      ],
+      "BuildingEffects": [
+      { "Content": { "1": "0.5" } }
+      ]
+    }
+    }
+  }
+}

@@ -21,8 +21,9 @@ namespace strategygame_common
     {
         public GameConfiguration Configuration {get;set;}
 
-        public GameConfigurationMessage(GameConfiguration Configuration)
+        public GameConfigurationMessage(int ClientID, GameConfiguration Configuration)
         {
+            this.ClientID = ClientID;
             this.Configuration = Configuration;
         }
     }

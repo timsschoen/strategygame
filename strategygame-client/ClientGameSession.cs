@@ -66,7 +66,7 @@ namespace strategygame_client
         {
             MouseHandler.Draw(spriteBatch, 1f);
             MapRenderer.Draw(Map, Entities, spriteBatch, 0.0f);
-            Windows.Draw(spriteBatch, 0.2f);
+            Windows.Draw(Entities, spriteBatch, 0.2f);
         }
 
         public void HandleNetworkMessage(IMessage newMessage)

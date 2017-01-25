@@ -33,7 +33,7 @@ namespace strategygame_server
                 BuildingMessage Msg = (BuildingMessage)Message;
             }
 
-            if (Message is NewClientConnectedMessage)
+            if (Message is ClientLoadedMessage)
             {
                 int NextID = Entities.NextID;
                 IEntity newEntity = new Village("TestDorf", Message.ClientID, new Vector2(10, 10), new Point(3,6), MapCellType.Flatland); 

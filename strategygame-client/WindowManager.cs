@@ -34,9 +34,9 @@ namespace strategygame_client
             VillageWindow.Update();
         }
 
-        public void Draw(SpriteBatch spriteBatch, float Layer)
+        public void Draw(Dictionary<int, IEntity> Entities, SpriteBatch spriteBatch, float Layer)
         {
-            VillageWindow.Draw(spriteBatch, Layer);
+            VillageWindow.Draw(Entities, spriteBatch, Layer);
         }
     }
 }
