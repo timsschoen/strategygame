@@ -147,8 +147,8 @@ namespace strategygame_common
         {
             Vector2 Unprojected = Unproject(clickPos);
             Point toReturn = new Point((int)Unprojected.X, (int)Unprojected.Y);
-            if (toReturn.X % 2 == 1)
-                toReturn.Y = (int)(Unprojected.X + 0.5f);
+            if (toReturn.Y % 2 == 1)
+                toReturn.X = (int)(Unprojected.X - 0.5f);
 
             return toReturn;
         }

@@ -48,7 +48,7 @@ namespace strategygame_client
             Client.Stop();
 
             if(GameSession != null)
-                GameSession.Stop();
+                GameSession.stop();
         }
 
 
@@ -95,12 +95,15 @@ namespace strategygame_client
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
+            base.Update(gameTime);
             UpdateNetMessages();
 
-            if(State == GameState.InGame)
-                GameSession.Update();
+            if (!IsActive)
+                return;
 
-            base.Update(gameTime);
+            if(State == GameState.InGame)
+                GameSession.update();
+
         }
         
         private void UpdateNetMessages()
@@ -109,7 +112,7 @@ namespace strategygame_client
             if ((newMessage = Client.TryGetMessage()) != null)
             {
                 if(State == GameState.InGame)
-                    GameSession.HandleNetworkMessage(newMessage);
+                    GameSession.handleNetworkMessage(newMessage);
                 else if(newMessage is GameConfigurationMessage)
                 {
                     GameSession = new ClientGameSession(((GameConfigurationMessage)newMessage).Configuration, 
@@ -136,7 +139,7 @@ namespace strategygame_client
             spriteBatch.Begin(SpriteSortMode.FrontToBack);
 
             if(State == GameState.InGame)
-                GameSession.Draw(spriteBatch);
+                GameSession.draw(spriteBatch);
 
             spriteBatch.End();
 

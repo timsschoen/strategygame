@@ -10,6 +10,8 @@ namespace strategygame_common
 {
     public class Village : BaseEntity, IVillage
     {
+        public static int MaxBuildingsInOneRow = 5;
+
         public Vector2 Position { get; set; }
         public bool isSelected { get; set; } = false;
         public List<ConstructionProcess> ParallelConstructions { get; set; }
@@ -29,6 +31,7 @@ namespace strategygame_common
             this.Position = Position;
             this.BuildingSlots = BuildingSlots;
             this.CellType = CellType;
+            Buildings = new Point[BuildingSlots.X * BuildingSlots.Y];
         }        
     }
 

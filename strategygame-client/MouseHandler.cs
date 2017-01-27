@@ -15,81 +15,89 @@ namespace strategygame_client
         public delegate void MouseClick(Point p);
         public delegate void Selection(Point A, Point B);
 
-        public event MouseClick OnMouseClick;
+        public event MouseClick OnMapMouseClick;
         public event Selection OnSelection;
 
-        private Texture2D CursorTexture;
-        private Texture2D SelectedBGTexture;
+        private Texture2D mCursorTexture;
+        private Texture2D mSelectedBGTexture;
 
-        TimeSpan DragClickThreshhold = TimeSpan.FromSeconds(1);
-
-        DateTime MousePressStarted;
-        bool MouseWasPressed = false;
-        Point MousePressStartPosition;
+        TimeSpan mDragClickThreshhold = TimeSpan.FromSeconds(1);
         
-        bool isDragging;
+        DateTime mMousePressStarted;
+        bool mMouseWasPressed = false;
+        Point mMousePressStartPosition;
+        
+        bool mIsDragging;
 
         public MouseHandler(MouseClick OnMouseClick, Selection OnSelection, ContentManager Content)
         {
-            this.OnMouseClick = OnMouseClick;
+            this.OnMapMouseClick = OnMouseClick;
             this.OnSelection = OnSelection;
-            this.CursorTexture = Content.Load<Texture2D>("UI/Mouse/Cursor");
-            this.SelectedBGTexture = Content.Load<Texture2D>("UI/Mouse/SelectedBG");
+            this.mCursorTexture = Content.Load<Texture2D>("UI/Mouse/Cursor");
+            this.mSelectedBGTexture = Content.Load<Texture2D>("UI/Mouse/SelectedBG");
         }
 
-        public void Update()
+        public void update(UIManager UI)
         {
             MouseState MS = Mouse.GetState();
+
             if(MS.LeftButton == ButtonState.Pressed)
             {
-                if(!MouseWasPressed)
+                if(!mMouseWasPressed)
                 {
-                    MouseWasPressed = true;
-                    MousePressStarted = DateTime.Now;
-                    MousePressStartPosition = MS.Position;
+                    mMouseWasPressed = true;
+                    mMousePressStarted = DateTime.Now;
+                    mMousePressStartPosition = MS.Position;
                 }
                 else
                 {
-                    if(DateTime.Now - MousePressStarted > DragClickThreshhold)
+                    if(DateTime.Now - mMousePressStarted > mDragClickThreshhold && !UI.ContainsPixel(Mouse.GetState().Position))
                     {
-                        isDragging = true;
+                        mIsDragging = true;
                     }
                 }
             }
             else
             {
-                if (MouseWasPressed)
+                if (mMouseWasPressed)
                 {
-                    if(DateTime.Now - MousePressStarted > DragClickThreshhold)
+                    if(mIsDragging)
                     {
                         //Dragging finished
                         if (OnSelection != null)
-                            OnSelection(MousePressStartPosition, MS.Position);
+                            OnSelection(mMousePressStartPosition, MS.Position);
 
-                        isDragging = false;
+                        mIsDragging = false;
                     }
                     else
                     {
-                        //normal mouse click occured
-                        if (OnMouseClick != null)
-                            OnMouseClick(MS.Position);
+                        if (UI.ContainsPixel(MS.Position))
+                        {
+                            UI.handleMouseClick(MS.Position);
+                        }
+                        else
+                        {
+                            //normal mouse click occured
+                            if (OnMapMouseClick != null)
+                                OnMapMouseClick(MS.Position);
+                        }
                     }
 
-                    MouseWasPressed = false;
+                    mMouseWasPressed = false;
                 }
             }
         }
 
-        public void Draw(SpriteBatch spriteBatch, float LayerDepth)
+        public void draw(SpriteBatch spriteBatch, float LayerDepth)
         {
-            spriteBatch.Draw(texture: CursorTexture, position: new Vector2(Mouse.GetState().X, Mouse.GetState().Y), layerDepth: LayerDepth);
+            spriteBatch.Draw(texture: mCursorTexture, position: new Vector2(Mouse.GetState().X, Mouse.GetState().Y), layerDepth: LayerDepth);
 
-            if(isDragging)
+            if(mIsDragging)
             {
-                Point A = new Point(Math.Min(MousePressStartPosition.X, Mouse.GetState().Position.X), Math.Min(MousePressStartPosition.Y, Mouse.GetState().Position.Y));
-                Point RectangleSize = new Point(Math.Max(MousePressStartPosition.X, Mouse.GetState().Position.X)-A.X, Math.Max(MousePressStartPosition.Y, Mouse.GetState().Position.Y)-A.Y);
+                Point A = new Point(Math.Min(mMousePressStartPosition.X, Mouse.GetState().Position.X), Math.Min(mMousePressStartPosition.Y, Mouse.GetState().Position.Y));
+                Point RectangleSize = new Point(Math.Max(mMousePressStartPosition.X, Mouse.GetState().Position.X)-A.X, Math.Max(mMousePressStartPosition.Y, Mouse.GetState().Position.Y)-A.Y);
 
-                spriteBatch.Draw(texture: SelectedBGTexture, destinationRectangle: new Rectangle(A, RectangleSize), layerDepth: LayerDepth-0.001f);
+                spriteBatch.Draw(texture: mSelectedBGTexture, destinationRectangle: new Rectangle(A, RectangleSize), layerDepth: LayerDepth-0.001f);
             }
         }
     }

@@ -13,99 +13,103 @@ namespace strategygame_client
     class ClientGameSession
     {
         //Ticks and Time
-        long Ticks = 0;
-        long LastUpdateTicks;
+        long mTicks = 0;
+        long mLastUpdateTicks;
 
         //Speed, set 0 for pause
-        int GameSpeed = 1;
+        int mGameSpeed = 1;
 
-        Map Map;
-        MapRenderer MapRenderer;
-        WindowManager Windows;
-        MouseHandler MouseHandler;
+        Map mMap;
+        MapRenderer mMapRenderer;
+        UIManager mUI;
+        MouseHandler mMouseHandler;
 
-        Dictionary<int, IEntity> Entities;
+        Dictionary<int, IEntity> mEntities;
 
-        ContentManager Content;
-        GameConfiguration Configuration;
+        ContentManager mContent;
+        GameConfiguration mConfiguration;
 
-        ILogger Logger;
+        ILogger mLogger;
 
-        public void Stop()
+        public void stop()
         {
 
         }
 
         public ClientGameSession(GameConfiguration Configuration, GraphicsDevice GraphicsDevice, ContentManager Content, INetworkSender NetworkSender, ILogger Logger, int ScreenWidth, int ScreenHeight)
         {
-            Map = Map.LoadFromFolder(GraphicsDevice, Content.RootDirectory + "/Maps/1");
-            Windows = new WindowManager(Content, Configuration.BuildingInformation);
-            MapRenderer = new MapRenderer(Content, Map, ScreenWidth, ScreenHeight);
-            MouseHandler = new MouseHandler(OnMouseClick, OnSelection, Content);
-            LastUpdateTicks = DateTime.Now.Ticks;
+            mMap = Map.LoadFromFolder(GraphicsDevice, Content.RootDirectory + "/Maps/1");
+            mUI = new UIManager(Content, Configuration.BuildingInformation);
+            mMapRenderer = new MapRenderer(Content, mMap, ScreenWidth, ScreenHeight);
+            mMouseHandler = new MouseHandler(onMouseClick, onSelection, Content);
+            mLastUpdateTicks = DateTime.Now.Ticks;
 
-            this.Content = Content;
-            this.Configuration = Configuration;
-            this.Logger = Logger;
+            this.mContent = Content;
+            this.mConfiguration = Configuration;
+            this.mLogger = Logger;
 
-            Entities = new Dictionary<int, IEntity>();                 
-                   
+            mEntities = new Dictionary<int, IEntity>();
         }
 
-        public void Update()
+        /// <summary>
+        /// Updates this game session's game logic
+        /// </summary>
+        public void update()
         {
-            MouseHandler.Update();
+            mMouseHandler.update(mUI);
 
-            Ticks += GameSpeed * (DateTime.Now.Ticks - LastUpdateTicks);
+            mTicks += mGameSpeed * (DateTime.Now.Ticks - mLastUpdateTicks);
             
-            MapRenderer.Update();
-            Windows.Update();
+            mMapRenderer.Update();
+            mUI.Update(mEntities);
         }
 
-        public void Draw(SpriteBatch spriteBatch)
+        /// <summary>
+        /// Draws the game to the given SpriteBatch
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        public void draw(SpriteBatch spriteBatch)
         {
-            MouseHandler.Draw(spriteBatch, 1f);
-            MapRenderer.Draw(Map, Entities, spriteBatch, 0.0f);
-            Windows.Draw(Entities, spriteBatch, 0.2f);
+            mMouseHandler.draw(spriteBatch, 1f);
+            mMapRenderer.Draw(mMap, mEntities, spriteBatch, 0.0f);
+            mUI.Draw(spriteBatch, 0.2f);
         }
 
-        public void HandleNetworkMessage(IMessage newMessage)
+        public void handleNetworkMessage(IMessage newMessage)
         {
             if (newMessage is EntityMessage)
             {
                 EntityMessage EntityMessage = (EntityMessage)newMessage;
                 EntityMessage.Entity.ClientInitialize();
-                Entities.Add(EntityMessage.EntityID, EntityMessage.Entity);
+                mEntities.Add(EntityMessage.EntityID, EntityMessage.Entity);
             }
         }
 
-        public void OnMouseClick(Point ClickPos)
+        public void onMouseClick(Point ClickPos)
         {
-            if (!Windows.ContainsPixel(ClickPos))
+            int? EntityClicked = mMapRenderer.getClickedEntity(ref mEntities, ClickPos);
+
+            if (EntityClicked != null)
             {
-                int? EntityClicked = MapRenderer.getClickedEntity(ref Entities, ClickPos);
+                mLogger.Log(LogPriority.Normal, "EntityClicked", "ID: " + EntityClicked + ", Name: " + mEntities[EntityClicked.Value].Name + ", Owner: " + mEntities[EntityClicked.Value].Owner);
 
-                if (EntityClicked != null)
-                {
-                    Logger.Log(LogPriority.Normal, "EntityClicked", "ID: " + EntityClicked + ", Name: " + Entities[EntityClicked.Value].Name + ", Owner: " + Entities[EntityClicked.Value].Owner);
+                if (!mEntities.ContainsKey(EntityClicked.Value))
+                    return;
 
-                    if (!Entities.ContainsKey(EntityClicked.Value))
-                        return;
+                IEntity Entity = mEntities[EntityClicked.Value];
 
-                    IEntity Entity = Entities[EntityClicked.Value];
-
-                    if (Entity is IVillage)
-                        Windows.VillageWindow.setVillage(EntityClicked.Value);
-                }
-                else
-                {
-                    Point ClickedTile = MapRenderer.getClickedHex(ClickPos);
-                    Logger.Log(LogPriority.Normal, "TileClicked", "Position: " + ClickedTile.X + "," + ClickedTile.Y);
-                }
+                if (Entity is IVillage)
+                    mUI.VillageWindow.setVillage(EntityClicked.Value);
             }
+            else
+            {
+                Point ClickedTile = mMapRenderer.getClickedHex(ClickPos);
+                mLogger.Log(LogPriority.Normal, "TileClicked", "Position: " + ClickedTile.X + "," + ClickedTile.Y);
+            }
+            
         }
 
-        public void OnSelection(Point A, Point B)
+        public void onSelection(Point A, Point B)
         {
 
         }

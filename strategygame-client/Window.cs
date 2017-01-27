@@ -13,90 +13,91 @@ namespace strategygame_client
 {
     abstract class Window
     {
-        SpriteFont Font;
-        protected string Name;
-        Texture2D Background;
-        Texture2D CloseSymbol;
-        protected Rectangle WindowRectangle;
+        protected SpriteFont mFont;
+        protected string mName;
+        Texture2D mBackground;
+        Texture2D mCloseSymbol;
+        protected Rectangle mWindowRectangle;
+        public bool IsOpen { get; set; } = false;
+
+        bool mIsDragged = false;
+        Point mDragStartRelativeToWindow;
 
         public virtual bool containsPoint(Point p)
         {
-            return WindowRectangle.Contains(p);
+            return mWindowRectangle.Contains(p);
         }
 
-        private Rectangle CloseSymbolRectangle
+        public virtual void handleMouseClick(Point p)
         {
-            get
-            {
-                return new Rectangle(WindowRectangle.Right - 30, WindowRectangle.Top + 10, 20, 20);
-            }
+
+        }
+        
+        private Rectangle getCloseSymbolRectangle()
+        {
+            return new Rectangle(mWindowRectangle.Right - 30, mWindowRectangle.Top + 10, 20, 20);            
         }
 
         public void setPosition(int X, int Y)
         {
-            WindowRectangle.X = X;
-            WindowRectangle.Y = Y;
+            mWindowRectangle.X = X;
+            mWindowRectangle.Y = Y;
         }
-
-        protected bool isOpen = true;
-
-        bool isDragged = false;
-        Point DragStartRelativeToWindow;
-
+        
         public Window(string Name, ContentManager Content, int X, int Y)
         {
-            this.Name = Name;
+            this.mName = Name;
             
-            Font = Content.Load<SpriteFont>("Font");
+            mFont = Content.Load<SpriteFont>("Default");
 
-            WindowRectangle = new Rectangle(X, Y, 100, 100);
+            mWindowRectangle = new Rectangle(X, Y, 100, 100);
 
-            Background = Content.Load<Texture2D>("UI/Windows/WindowBG");
-            CloseSymbol = Content.Load<Texture2D>("Ui/Windows/WindowX");
+            mBackground = Content.Load<Texture2D>("UI/Windows/WindowBG");
+            mCloseSymbol = Content.Load<Texture2D>("Ui/Windows/WindowX");
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, float Layer)
+        public virtual void draw(SpriteBatch spriteBatch, float Layer)
         {
-            if (!isOpen)
+            if (!IsOpen)
                 return;
 
-            spriteBatch.Draw(Background, WindowRectangle, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer);
-            spriteBatch.Draw(CloseSymbol, CloseSymbolRectangle , null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer + 0.01f);
-            spriteBatch.DrawString(Font, Name, new Vector2(WindowRectangle.Left + 20, WindowRectangle.Top + 10), Color.Black, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, Layer+0.01f);
+            spriteBatch.Draw(mBackground, mWindowRectangle, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer);
+            spriteBatch.Draw(mCloseSymbol, getCloseSymbolRectangle(), null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer + 0.01f);
+            spriteBatch.DrawString(mFont, mName, new Vector2(mWindowRectangle.Left + 20, mWindowRectangle.Top + 10), Color.Black, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, Layer+0.01f);
         }
 
-        public virtual void Update()
+        public virtual void update()
         {
-            if (!isOpen)
+            if (!IsOpen)
                 return;
 
             if (Mouse.GetState().LeftButton == ButtonState.Pressed)
             {
                 Point MousePoint = Mouse.GetState().Position;
-                if (!isDragged)
+                if (!mIsDragged)
                 {
-                    if (WindowRectangle.Contains(MousePoint))
+                    if (mWindowRectangle.Contains(MousePoint))
                     {
-                        if (CloseSymbolRectangle.Contains(MousePoint))
-                            this.isOpen = false;
+                        if (getCloseSymbolRectangle().Contains(MousePoint))
+                            this.IsOpen = false;
 
-                        if (MousePoint.Y - WindowRectangle.Top <= 20)
+                        if (MousePoint.Y - mWindowRectangle.Top <= 20)
                         {
-                            isDragged = true;
-                            DragStartRelativeToWindow = new Point(MousePoint.X - WindowRectangle.X, MousePoint.Y - WindowRectangle.Y);
+                            mIsDragged = true;
+                            mDragStartRelativeToWindow = new Point(MousePoint.X - mWindowRectangle.X, MousePoint.Y - mWindowRectangle.Y);
                         }
                     }
                 }
                 else
                 {
-                    WindowRectangle.X = MousePoint.X - DragStartRelativeToWindow.X;
-                    WindowRectangle.Y = MousePoint.Y - DragStartRelativeToWindow.Y;
+                    mWindowRectangle.X = MousePoint.X - mDragStartRelativeToWindow.X;
+                    mWindowRectangle.Y = MousePoint.Y - mDragStartRelativeToWindow.Y;
                 }
             }
             else
             {
-                if (isDragged)
-                    isDragged = false;
+                if (mIsDragged)
+                    mIsDragged = false;
             }
         }
     }

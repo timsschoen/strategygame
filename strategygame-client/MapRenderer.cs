@@ -72,7 +72,7 @@ namespace strategygame_client
                 {
                     IMapComponent MapComponent = (IMapComponent)entity.Value;
 
-                    if(UnprojectDistance(MapCoordinates, MapComponent.Position) < MapComponent.Hitboxsize)
+                    if(Vector2.Distance(MapCoordinates, MapComponent.Position + new Vector2(0.5f,0.5f)) < MapComponent.Hitboxsize)
                     {
                         return entity.Key;
                     }

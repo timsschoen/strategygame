@@ -12,60 +12,99 @@ namespace strategygame_client
 {
     class VillageWindow : Window
     {
-        int Village;
-        Texture2D BuildingSlotTexture;
-        BuildingWindow BuildingWindow;
+        IVillage mVillage;
+        int selectedVillage = -1;
+        Texture2D mBuildingSlotTexture;
+        BuildingWindow mBuildingWindow;
+
+        const int TILESIZE = 50;
+        
+        /// <summary>
+        /// Calculates the position of the tile in row y, and column x, according to tilesize and window position
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+        Rectangle TileDrawPosition(int x, int y)
+        {
+            return new Rectangle(mWindowRectangle.X + 50 + x * TILESIZE, mWindowRectangle.Y + 50 + y * TILESIZE, TILESIZE, TILESIZE);
+        }
 
         public VillageWindow(string Name, ContentManager Content, int X, int Y, IBuildingInformation BuildingInformation) : base(Name, Content, X, Y)
         {
-            WindowRectangle.Width = 400;
-            WindowRectangle.Height = 500;
-            BuildingSlotTexture = Content.Load<Texture2D>("UI/Windows/BuildingSlot");
-            BuildingWindow = new BuildingWindow("BuiildingWindow", Content, WindowRectangle.Right + 10, WindowRectangle.Y, BuildingInformation);
-            isOpen = false;
+            mWindowRectangle.Width = 400;
+            mWindowRectangle.Height = 500;
+            mBuildingSlotTexture = Content.Load<Texture2D>("UI/Windows/BuildingSlot");
+            mBuildingWindow = new BuildingWindow("BuildingWindow", Content, mWindowRectangle.Right + 5, mWindowRectangle.Y, BuildingInformation);
+            IsOpen = false;
         }
 
         public void setVillage(int Village)
         {
-            this.Village = Village;
-            isOpen = true;
+            this.selectedVillage = Village;
+            IsOpen = true;
         }
 
         public override bool containsPoint(Point p)
         {
-            return base.containsPoint(p) || BuildingWindow.containsPoint(p);
+            return (base.containsPoint(p) || mBuildingWindow.containsPoint(p));
         }
 
-        public void Draw(Dictionary<int, IEntity> Entities, SpriteBatch spriteBatch, float Layer)
+        public void update(Dictionary<int, IEntity> Entities)
         {
-            base.Draw(spriteBatch, Layer);
+            base.update();
 
-            if (!Entities.ContainsKey(Village))
+            if (!Entities.ContainsKey(selectedVillage))
             {
-                isOpen = false;
+                IsOpen = false;
                 return;
             }
 
-            IVillage VillageEntitiy = Entities[Village] as IVillage;
+            IVillage VillageEntitiy = Entities[selectedVillage] as IVillage;
 
             if (VillageEntitiy == null)
-                isOpen = false;
+                IsOpen = false;
 
-            if (!isOpen)
+            mVillage = VillageEntitiy;
+
+            mBuildingWindow.update();
+        }
+
+        public override void draw(SpriteBatch spriteBatch, float Layer)
+        {            
+            if (!IsOpen || mVillage == null)
                 return;
 
-            this.Name = VillageEntitiy.Name;
+            base.draw(spriteBatch, Layer);
 
-            BuildingWindow.setPosition(WindowRectangle.Right + 10, WindowRectangle.Y);
-            BuildingWindow.Draw(spriteBatch, Layer);
+            this.mName = mVillage.Name;
 
-            Vector2 DrawPosition = new Vector2(WindowRectangle.X+50, WindowRectangle.Y+50);
-
-            for(int x = 0; x < VillageEntitiy.BuildingSlots.X; x++)
+            mBuildingWindow.setPosition(mWindowRectangle.Right + 5, mWindowRectangle.Y);
+            mBuildingWindow.draw(mVillage, spriteBatch, Layer);
+            
+            for(int x = 0; x < mVillage.BuildingSlots.X; x++)
             {
-                for(int y = 0; y < VillageEntitiy.BuildingSlots.Y; y++)
+                for(int y = 0; y < mVillage.BuildingSlots.Y; y++)
                 {
-                    spriteBatch.Draw(texture: BuildingSlotTexture, position: new Vector2(x * 50, y * 50) + DrawPosition, layerDepth: Layer + 0.01f);
+                    spriteBatch.Draw(texture: mBuildingSlotTexture, destinationRectangle: TileDrawPosition(x, y), layerDepth: Layer + 0.01f);
+                }
+            }
+        }
+
+        public override void handleMouseClick(Point p)
+        {
+            if (!IsOpen || mVillage == null)
+                return;
+
+            for (int x = 0; x < mVillage.BuildingSlots.X; x++)
+            {
+                for (int y = 0; y < mVillage.BuildingSlots.Y; y++)
+                {
+                    if(TileDrawPosition(x, y).Contains(p))
+                    {
+                        mBuildingWindow.setSlot(y*Village.MaxBuildingsInOneRow + x);
+                        return;
+                    }
                 }
             }
         }

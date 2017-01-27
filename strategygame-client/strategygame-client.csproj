@@ -54,7 +54,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VillageWindow.cs" />
     <Compile Include="Window.cs" />
-    <Compile Include="WindowManager.cs" />
+    <Compile Include="UIManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Lidgren.Network, Version=2012.1.7.0, Culture=neutral, processorArchitecture=MSIL">
@@ -123,9 +123,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <Content Include="Content\Default.xnb">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Content\Font.xnb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <None Include="OpenTK.dll.config">
