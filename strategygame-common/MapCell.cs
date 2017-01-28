@@ -17,14 +17,11 @@ namespace strategygame_common
         public bool isWater { get; private set; }
         public float Laufgeschwindigkeit { get; private set; }
         public float Fruchtbarkeit { get; private set; }
-        public Vector4 AvailableResources;
+        public Resources ResourceFactors;
         public MapCellType CellType;
-        public MapCellSegment[] Segments { get; private set; }
 
         public MapCell(Color MapColor)
         {
-            Segments = new MapCellSegment[7];
-
             if (MapColor.R > 200)
                 CellType = MapCellType.Flatland;
             else if (MapColor.R > 150)
@@ -36,12 +33,7 @@ namespace strategygame_common
         }
         
     }
-
-    public class MapCellSegment
-    {
-
-    }
-
+    
     public enum MapCellType
     {
         Mountain,

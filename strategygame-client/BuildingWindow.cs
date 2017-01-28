@@ -44,7 +44,7 @@ namespace strategygame_client
         /// <param name="Layer"></param>
         public void draw(IVillage village, SpriteBatch spriteBatch, float Layer)
         {
-            base.draw(spriteBatch, Layer);
+            base.Draw(spriteBatch, Layer);
 
             if (village == null)
                 IsOpen = false;

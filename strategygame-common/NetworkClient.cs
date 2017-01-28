@@ -124,7 +124,7 @@ namespace strategygame_common
             StopFlag = true;
         }
         
-        public void sendOverNetwork(IMessage toSend)
+        public void SendOverNetwork(IMessage toSend)
         {
             MessagesToSend.Enqueue(toSend);
         }

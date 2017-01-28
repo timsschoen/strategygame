@@ -3,6 +3,6 @@
 
     public interface INetworkSender
     {
-        void sendOverNetwork(IMessage toSend);     
+        void SendOverNetwork(IMessage toSend);     
     }
 }

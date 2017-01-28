@@ -11,46 +11,46 @@ namespace strategygame_server
 {
     public class Server
     {
-        NetworkServer networkServer;
+        NetworkServer mNetworkServer;
 
-        ServerGameSession gameSession;
-        ServerLobbySession lobbySession;
-        Thread serverThread;
+        ServerGameSession mGameSession;
+        ServerLobbySession mLobbySession;
+        Thread mServerThread;
 
-        ILogger Logger = new ConsoleLogger();
+        ILogger mLogger = new ConsoleLogger();
 
-        volatile bool StopFlag;
+        volatile bool mStopFlag;
 
         public Server()
         {
-            lobbySession = new ServerLobbySession();                      
+            mLobbySession = new ServerLobbySession();                      
 
             JsonSerializer Serializer = new JsonSerializer();
 
             GameConfiguration Configuration = Serializer.Deserialize<GameConfiguration>(new JsonTextReader(new StreamReader(File.OpenRead("Config.json"))));
 
-            networkServer = new NetworkServer(Logger);
-            gameSession = new ServerGameSession(networkServer, Logger, Configuration);
-            serverThread = new Thread(new ThreadStart(ServerLoop));
+            mNetworkServer = new NetworkServer(mLogger);
+            mGameSession = new ServerGameSession(mNetworkServer, mLogger, Configuration);
+            mServerThread = new Thread(new ThreadStart(ServerLoop));
         }
         
         public void Start()
         {
-            if (serverThread.ThreadState == ThreadState.Unstarted && serverThread != null)
+            if (mServerThread.ThreadState == ThreadState.Unstarted && mServerThread != null)
             {
-                serverThread.Start();
-                networkServer.Start();
+                mServerThread.Start();
+                mNetworkServer.Start();
             }
         }
 
         void ServerLoop()
         {            
-            while (!StopFlag)
+            while (!mStopFlag)
             {
-                IMessage message = networkServer.TryGetNewMessage();
+                IMessage message = mNetworkServer.TryGetNewMessage();
                 if(message != null)
                 {
-                    gameSession.handleNetworkMessage(message);
+                    mGameSession.handleNetworkMessage(message);
 
                     //sort between general, lobby and game messages
                 }      

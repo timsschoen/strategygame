@@ -45,14 +45,14 @@ namespace strategygame_client
             IsOpen = true;
         }
 
-        public override bool containsPoint(Point p)
+        public override bool ContainsScreenPoint(Point p)
         {
-            return (base.containsPoint(p) || mBuildingWindow.containsPoint(p));
+            return (base.ContainsScreenPoint(p) || mBuildingWindow.ContainsScreenPoint(p));
         }
 
-        public void update(Dictionary<int, IEntity> Entities)
+        public void Update(Dictionary<int, IEntity> Entities)
         {
-            base.update();
+            base.Update();
 
             if (!Entities.ContainsKey(selectedVillage))
             {
@@ -67,19 +67,19 @@ namespace strategygame_client
 
             mVillage = VillageEntitiy;
 
-            mBuildingWindow.update();
+            mBuildingWindow.Update();
         }
 
-        public override void draw(SpriteBatch spriteBatch, float Layer)
+        public override void Draw(SpriteBatch spriteBatch, float Layer)
         {            
             if (!IsOpen || mVillage == null)
                 return;
 
-            base.draw(spriteBatch, Layer);
+            base.Draw(spriteBatch, Layer);
 
             this.mName = mVillage.Name;
 
-            mBuildingWindow.setPosition(mWindowRectangle.Right + 5, mWindowRectangle.Y);
+            mBuildingWindow.SetWindowPosition(mWindowRectangle.Right + 5, mWindowRectangle.Y);
             mBuildingWindow.draw(mVillage, spriteBatch, Layer);
             
             for(int x = 0; x < mVillage.BuildingSlots.X; x++)
@@ -91,7 +91,7 @@ namespace strategygame_client
             }
         }
 
-        public override void handleMouseClick(Point p)
+        public override void HandleMouseClick(Point p)
         {
             if (!IsOpen || mVillage == null)
                 return;

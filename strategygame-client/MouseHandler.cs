@@ -51,7 +51,7 @@ namespace strategygame_client
                 }
                 else
                 {
-                    if(DateTime.Now - mMousePressStarted > mDragClickThreshhold && !UI.ContainsPixel(Mouse.GetState().Position))
+                    if(DateTime.Now - mMousePressStarted > mDragClickThreshhold && !UI.ContainsScreenPoint(Mouse.GetState().Position))
                     {
                         mIsDragging = true;
                     }
@@ -71,9 +71,9 @@ namespace strategygame_client
                     }
                     else
                     {
-                        if (UI.ContainsPixel(MS.Position))
+                        if (UI.ContainsScreenPoint(MS.Position))
                         {
-                            UI.handleMouseClick(MS.Position);
+                            UI.HandleMouseClick(MS.Position);
                         }
                         else
                         {

@@ -87,19 +87,19 @@ namespace strategygame_client
 
         public void onMouseClick(Point ClickPos)
         {
-            int? EntityClicked = mMapRenderer.getClickedEntity(ref mEntities, ClickPos);
+            int? clickedEntitiyID = mMapRenderer.getClickedEntity(ref mEntities, ClickPos);
 
-            if (EntityClicked != null)
+            if (clickedEntitiyID != null)
             {
-                mLogger.Log(LogPriority.Normal, "EntityClicked", "ID: " + EntityClicked + ", Name: " + mEntities[EntityClicked.Value].Name + ", Owner: " + mEntities[EntityClicked.Value].Owner);
+                mLogger.Log(LogPriority.Normal, "EntityClicked", "ID: " + clickedEntitiyID + ", Name: " + mEntities[clickedEntitiyID.Value].Name + ", Owner: " + mEntities[clickedEntitiyID.Value].Owner);
 
-                if (!mEntities.ContainsKey(EntityClicked.Value))
+                if (!mEntities.ContainsKey(clickedEntitiyID.Value))
                     return;
 
-                IEntity Entity = mEntities[EntityClicked.Value];
+                IEntity clickedEntity = mEntities[clickedEntitiyID.Value];
 
-                if (Entity is IVillage)
-                    mUI.VillageWindow.setVillage(EntityClicked.Value);
+                if (clickedEntity is IVillage)
+                    mUI.SelectVillage(clickedEntitiyID.Value);
             }
             else
             {

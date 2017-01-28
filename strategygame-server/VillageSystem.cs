@@ -38,7 +38,7 @@ namespace strategygame_server
                 int NextID = Entities.NextID;
                 IEntity newEntity = new Village("TestDorf", Message.ClientID, new Vector2(10, 10), new Point(3,6), MapCellType.Flatland); 
                 Entities.Add(NextID, newEntity);
-                NetworkSender.sendOverNetwork(new EntityMessage(-1, NextID, newEntity));
+                NetworkSender.SendOverNetwork(new EntityMessage(-1, NextID, newEntity));
             }
         }
     }

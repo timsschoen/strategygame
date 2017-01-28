@@ -23,22 +23,22 @@ namespace strategygame_client
         bool mIsDragged = false;
         Point mDragStartRelativeToWindow;
 
-        public virtual bool containsPoint(Point p)
+        public virtual bool ContainsScreenPoint(Point p)
         {
             return mWindowRectangle.Contains(p);
         }
 
-        public virtual void handleMouseClick(Point p)
+        public virtual void HandleMouseClick(Point p)
         {
 
         }
         
-        private Rectangle getCloseSymbolRectangle()
+        private Rectangle GetCloseSymbolRectangle()
         {
             return new Rectangle(mWindowRectangle.Right - 30, mWindowRectangle.Top + 10, 20, 20);            
         }
 
-        public void setPosition(int X, int Y)
+        public void SetWindowPosition(int X, int Y)
         {
             mWindowRectangle.X = X;
             mWindowRectangle.Y = Y;
@@ -51,22 +51,21 @@ namespace strategygame_client
             mFont = Content.Load<SpriteFont>("Default");
 
             mWindowRectangle = new Rectangle(X, Y, 100, 100);
-
             mBackground = Content.Load<Texture2D>("UI/Windows/WindowBG");
             mCloseSymbol = Content.Load<Texture2D>("Ui/Windows/WindowX");
         }
 
-        public virtual void draw(SpriteBatch spriteBatch, float Layer)
+        public virtual void Draw(SpriteBatch spriteBatch, float Layer)
         {
             if (!IsOpen)
                 return;
 
             spriteBatch.Draw(mBackground, mWindowRectangle, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer);
-            spriteBatch.Draw(mCloseSymbol, getCloseSymbolRectangle(), null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer + 0.01f);
+            spriteBatch.Draw(mCloseSymbol, GetCloseSymbolRectangle(), null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer + 0.01f);
             spriteBatch.DrawString(mFont, mName, new Vector2(mWindowRectangle.Left + 20, mWindowRectangle.Top + 10), Color.Black, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, Layer+0.01f);
         }
 
-        public virtual void update()
+        public virtual void Update()
         {
             if (!IsOpen)
                 return;
@@ -78,7 +77,7 @@ namespace strategygame_client
                 {
                     if (mWindowRectangle.Contains(MousePoint))
                     {
-                        if (getCloseSymbolRectangle().Contains(MousePoint))
+                        if (GetCloseSymbolRectangle().Contains(MousePoint))
                             this.IsOpen = false;
 
                         if (MousePoint.Y - mWindowRectangle.Top <= 20)

@@ -19,30 +19,40 @@ namespace strategygame_client
             VillageWindow = new VillageWindow("Dorf", Content, 100, 100, BuildingData);
         }
         
-        public bool ContainsPixel(Point p)
+        public bool ContainsScreenPoint(Point p)
         {
-            return VillageWindow.containsPoint(p) && VillageWindow.IsOpen;
+            return VillageWindow.ContainsScreenPoint(p) && VillageWindow.IsOpen;
         }
 
         public void Update(Dictionary<int, IEntity> Entities)
         {
-            VillageWindow.update(Entities);
+            VillageWindow.Update(Entities);
         }
 
+        /// <summary>
+        /// Draw the UI to the given SpriteBatch
+        /// </summary>
+        /// <param name="spriteBatch"></param>
+        /// <param name="Layer"></param>
         public void Draw(SpriteBatch spriteBatch, float Layer)
         {
-            VillageWindow.draw(spriteBatch, Layer);
+            VillageWindow.Draw(spriteBatch, Layer);
         }
 
-        public void SelectVillage(Dictionary<int, IEntity> Entities, int selectedVillage)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Entities"></param>
+        /// <param name="selectedVillage"></param>
+        public void SelectVillage(int selectedVillage)
         {
             VillageWindow.setVillage(selectedVillage);
         }
 
-        public void handleMouseClick(Point position)
+        public void HandleMouseClick(Point position)
         {
-            if (VillageWindow.containsPoint(position))
-                VillageWindow.handleMouseClick(position);
+            if (VillageWindow.ContainsScreenPoint(position))
+                VillageWindow.HandleMouseClick(position);
         }
     }
 }

@@ -11,137 +11,165 @@ namespace strategygame_common
 {
     public class NetworkServer : INetworkSender
     {
-        private Thread serverThread;
+        private Thread mServerThread;
 
-        private Dictionary<int, Client> connectedClients;
-        private Dictionary<NetConnection, int> Connections;
+        private Dictionary<int, Client> mConnectedClients;
+        private Dictionary<NetConnection, int> mConnections;
 
-        private ConcurrentQueue<IMessage> IncomingMessageQueue;
-        private ConcurrentQueue<IMessage> OutgoingMessageQueue;
-        NetServer LidgrenServer;
+        private ConcurrentQueue<IMessage> mIncomingMessageQueue;
+        private ConcurrentQueue<IMessage> mOutgoingMessageQueue;
+        NetServer mLidgrenServer;
 
-        const string version = "0.1";
-        int NextID = 0;
-        ILogger Logger;
-        bool StopFlag = false;
+        const string mVersion = "0.1";
+        int mNextID = 0;
+        ILogger mLogger;
+        volatile bool mStopFlag = false;
 
-        public NetworkServer(ILogger Logger)
+        int mPort;
+
+        /// <summary>
+        /// Constructs a new network server
+        /// </summary>
+        /// <param name="Logger">ILogger to log to</param>
+        /// <param name="Port">Port to listen on, default 6679</param>
+        public NetworkServer(ILogger Logger, int Port = 6679)
         {
-            serverThread = new Thread(new ThreadStart(NetworkUpdateLoop));
-            IncomingMessageQueue = new ConcurrentQueue<IMessage>();
-            OutgoingMessageQueue = new ConcurrentQueue<IMessage>();
-            connectedClients = new Dictionary<int, Client>();
-            Connections = new Dictionary<NetConnection, int>();
-            this.Logger = Logger;
+            mServerThread = new Thread(new ThreadStart(NetworkUpdateLoop));
+            mIncomingMessageQueue = new ConcurrentQueue<IMessage>();
+            mOutgoingMessageQueue = new ConcurrentQueue<IMessage>();
+            mConnectedClients = new Dictionary<int, Client>();
+            mConnections = new Dictionary<NetConnection, int>();
+
+            mLogger = Logger;
+            mPort = Port;
         }
 
         public IMessage TryGetNewMessage()
         {
             IMessage message = null;
-            if (IncomingMessageQueue.TryDequeue(out message))
+            if (mIncomingMessageQueue.TryDequeue(out message))
                 return message;
             else
                 return null;
         }
 
+        /// <summary>
+        /// Starts the server
+        /// </summary>
         public void Start()
         {
-            serverThread.Start();
+            mServerThread.Start();
         }
 
+        /// <summary>
+        /// loops until mStopFlag is false
+        /// </summary>
         void NetworkUpdateLoop()
         {
             NetPeerConfiguration config = new NetPeerConfiguration("StrategyGame");
-            config.Port = 6679;
+            config.Port = mPort;
             config.SetMessageTypeEnabled(NetIncomingMessageType.DebugMessage, true);
             config.SetMessageTypeEnabled(NetIncomingMessageType.ConnectionApproval, true);
-            LidgrenServer = new NetServer(config);
-            LidgrenServer.Start();
-            Logger.Log(LogPriority.Important, "NetworkServer", "Server started.");
+            mLidgrenServer = new NetServer(config);
+            mLidgrenServer.Start();
+            mLogger.Log(LogPriority.Important, "NetworkServer", "Server started.");
 
             JsonSerializer JsonReader = new JsonSerializer();
             List<NetIncomingMessage> IncomingMessages = new List<NetIncomingMessage>();
 
-            while (!StopFlag)
+            while (!mStopFlag)
             {
-                LidgrenServer.ReadMessages(IncomingMessages);
+                mLidgrenServer.ReadMessages(IncomingMessages);
 
                 for(int i = 0; i < IncomingMessages.Count; i++)
                 {
-                    handleMessage(IncomingMessages[i]);
+                    HandleMessage(IncomingMessages[i]);
                 }
 
                 IncomingMessages.Clear();
 
                 //send Messages we need to send
                 IMessage toSend;
-                while (OutgoingMessageQueue.TryDequeue(out toSend))
+                while (mOutgoingMessageQueue.TryDequeue(out toSend))
                 {
                     JsonSerializerSettings settings = new JsonSerializerSettings();
                     settings.TypeNameHandling = TypeNameHandling.Objects;
                     string Message = JsonConvert.SerializeObject(toSend, settings);
                     if(toSend.ClientID == -1)                    
                         //Send to all
-                        foreach (KeyValuePair<int, Client> KVP in connectedClients)
+                        foreach (KeyValuePair<int, Client> KVP in mConnectedClients)
                         {
-                            LidgrenServer.SendMessage(LidgrenServer.CreateMessage(Message), KVP.Value.Connection, NetDeliveryMethod.ReliableOrdered);
+                            mLidgrenServer.SendMessage(mLidgrenServer.CreateMessage(Message), KVP.Value.Connection, NetDeliveryMethod.ReliableOrdered);
                         }                    
                     else
-                        LidgrenServer.SendMessage(LidgrenServer.CreateMessage(Message), connectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
+                        mLidgrenServer.SendMessage(mLidgrenServer.CreateMessage(Message), mConnectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
                 }
             }
         }        
 
-        void handleMessage(NetIncomingMessage incMsg)
+        /// <summary>
+        /// Handles the received network message
+        /// </summary>
+        /// <param name="incomingMessage">message to handle</param>
+        void HandleMessage(NetIncomingMessage incomingMessage)
         {
-            if(incMsg.MessageType == NetIncomingMessageType.ConnectionApproval)
+            if(incomingMessage.MessageType == NetIncomingMessageType.ConnectionApproval)
             {
-                incMsg.SenderConnection.Approve();
+                incomingMessage.SenderConnection.Approve();
             }
-            else if (incMsg.MessageType == NetIncomingMessageType.StatusChanged)
+            else if (incomingMessage.MessageType == NetIncomingMessageType.StatusChanged)
             {
-                if (incMsg.SenderConnection.Status == NetConnectionStatus.Connected)
+                if (incomingMessage.SenderConnection.Status == NetConnectionStatus.Connected)
                 {
-                    Client client = new Client(incMsg.SenderConnection);
-                    Connections.Add(incMsg.SenderConnection, NextID);
-                    connectedClients.Add(NextID, client);
-                    Logger.Log(LogPriority.Important, "Network", "New Client " + NextID + " connected.");
-                    IncomingMessageQueue.Enqueue(new NewClientConnectedMessage(NextID));
-                    NextID++;
+                    Client client = new Client(incomingMessage.SenderConnection);
+                    mConnections.Add(incomingMessage.SenderConnection, mNextID);
+                    mConnectedClients.Add(mNextID, client);
+                    mLogger.Log(LogPriority.Important, "Network", "New Client " + mNextID + " connected.");
+                    mIncomingMessageQueue.Enqueue(new NewClientConnectedMessage(mNextID));
+                    mNextID++;
                 }
-                else if(incMsg.SenderConnection.Status == NetConnectionStatus.Disconnected || incMsg.SenderConnection.Status == NetConnectionStatus.Disconnecting)
+                else if(incomingMessage.SenderConnection.Status == NetConnectionStatus.Disconnected || incomingMessage.SenderConnection.Status == NetConnectionStatus.Disconnecting)
                 {
-                    if (!Connections.ContainsKey(incMsg.SenderConnection))
+                    if (!mConnections.ContainsKey(incomingMessage.SenderConnection))
                         return;
 
-                    int id = Connections[incMsg.SenderConnection];
-                    Connections.Remove(incMsg.SenderConnection);
-                    connectedClients.Remove(id);
-                    Logger.Log(LogPriority.Important, "Network", "Client " + NextID + " disconnected.");
+                    int id = mConnections[incomingMessage.SenderConnection];
+                    mConnections.Remove(incomingMessage.SenderConnection);
+                    mConnectedClients.Remove(id);
+                    mLogger.Log(LogPriority.Important, "Network", "Client " + mNextID + " disconnected.");
                 }
             }
-            else if (incMsg.MessageType == NetIncomingMessageType.Data)
+            else if (incomingMessage.MessageType == NetIncomingMessageType.Data)
             {
-                if (!Connections.ContainsKey(incMsg.SenderConnection))
+                if (!mConnections.ContainsKey(incomingMessage.SenderConnection))
                     return;
 
-                handleConnectedMessage(incMsg, Connections[incMsg.SenderConnection]);
+                HandleConnectedMessage(incomingMessage, mConnections[incomingMessage.SenderConnection]);
             }
         }
 
-        void handleConnectedMessage(NetIncomingMessage incMsg, int ClientID)
+        /// <summary>
+        /// handles game-messages from connected clients
+        /// </summary>
+        /// <param name="incomingConnectedMessage">the received game-message</param>
+        /// <param name="senderClientID">id of the client, fromwhich the message was received</param>
+        void HandleConnectedMessage(NetIncomingMessage incomingConnectedMessage, int senderClientID)
         {
-            string Message = incMsg.ReadString();
+            string Message = incomingConnectedMessage.ReadString();
             JsonSerializerSettings settings = new JsonSerializerSettings();
             settings.TypeNameHandling = TypeNameHandling.Objects;
             IMessage ParsedMessage = (IMessage)JsonConvert.DeserializeObject(Message, settings);
-            ParsedMessage.ClientID = ClientID;
-            IncomingMessageQueue.Enqueue(ParsedMessage);
+            ParsedMessage.ClientID = senderClientID;
+            mIncomingMessageQueue.Enqueue(ParsedMessage);
         }
          
-        public void sendOverNetwork(IMessage toSend)
+        /// <summary>
+        /// Send the given game-message to the client specified in the message
+        /// </summary>
+        /// <param name="messageToSend">message to send, toSend.ClientID will determine which client to send the message to, -1 for all clients</param>
+        public void SendOverNetwork(IMessage messageToSend)
         {
-            OutgoingMessageQueue.Enqueue(toSend);
+            mOutgoingMessageQueue.Enqueue(messageToSend);
         }
     }
 
