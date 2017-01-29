@@ -14,9 +14,9 @@ namespace strategygame_client
     {
         public VillageWindow VillageWindow;
 
-        public UIManager(ContentManager Content, IBuildingInformation BuildingData)
+        public UIManager(ContentManager Content, IBuildingInformation BuildingData, GraphicsDevice graphicsDevice)
         {
-            VillageWindow = new VillageWindow("Dorf", Content, 100, 100, BuildingData);
+            VillageWindow = new VillageWindow("Dorf", Content, 100, 100, BuildingData, graphicsDevice);
         }
         
         public bool ContainsScreenPoint(Point p)
@@ -32,11 +32,11 @@ namespace strategygame_client
         /// <summary>
         /// Draw the UI to the given SpriteBatch
         /// </summary>
-        /// <param name="spriteBatch"></param>
+        /// <param name="spriteRenderer"></param>
         /// <param name="Layer"></param>
-        public void Draw(SpriteBatch spriteBatch, float Layer)
+        public void Draw(ISpriteRenderer spriteRenderer, float Layer)
         {
-            VillageWindow.Draw(spriteBatch, Layer);
+            VillageWindow.Draw(spriteRenderer, Layer);
         }
 
         /// <summary>

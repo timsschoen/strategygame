@@ -30,12 +30,12 @@ namespace strategygame_client
             return new Rectangle(mWindowRectangle.X + 50 + x * TILESIZE, mWindowRectangle.Y + 50 + y * TILESIZE, TILESIZE, TILESIZE);
         }
 
-        public VillageWindow(string Name, ContentManager Content, int X, int Y, IBuildingInformation BuildingInformation) : base(Name, Content, X, Y)
+        public VillageWindow(string Name, ContentManager Content, int X, int Y, IBuildingInformation BuildingInformation, GraphicsDevice graphicsDevice) : base(Name, Content, X, Y)
         {
             mWindowRectangle.Width = 400;
             mWindowRectangle.Height = 500;
             mBuildingSlotTexture = Content.Load<Texture2D>("UI/Windows/BuildingSlot");
-            mBuildingWindow = new BuildingWindow("BuildingWindow", Content, mWindowRectangle.Right + 5, mWindowRectangle.Y, BuildingInformation);
+            mBuildingWindow = new BuildingWindow("BuildingWindow", Content, mWindowRectangle.Right + 5, mWindowRectangle.Y, BuildingInformation, graphicsDevice);
             IsOpen = false;
         }
 
@@ -70,23 +70,23 @@ namespace strategygame_client
             mBuildingWindow.Update();
         }
 
-        public override void Draw(SpriteBatch spriteBatch, float Layer)
+        public override void Draw(ISpriteRenderer spriteRenderer, float layerDepth)
         {            
             if (!IsOpen || mVillage == null)
                 return;
 
-            base.Draw(spriteBatch, Layer);
+            base.Draw(spriteRenderer, layerDepth);
 
             this.mName = mVillage.Name;
 
             mBuildingWindow.SetWindowPosition(mWindowRectangle.Right + 5, mWindowRectangle.Y);
-            mBuildingWindow.draw(mVillage, spriteBatch, Layer);
+            mBuildingWindow.draw(mVillage, spriteRenderer, layerDepth);
             
             for(int x = 0; x < mVillage.BuildingSlots.X; x++)
             {
                 for(int y = 0; y < mVillage.BuildingSlots.Y; y++)
                 {
-                    spriteBatch.Draw(texture: mBuildingSlotTexture, destinationRectangle: TileDrawPosition(x, y), layerDepth: Layer + 0.01f);
+                    spriteRenderer.Draw(mBuildingSlotTexture, TileDrawPosition(x, y), layerDepth: layerDepth + 0.01f);
                 }
             }
         }

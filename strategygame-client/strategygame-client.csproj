@@ -48,10 +48,12 @@
     <Compile Include="ClientGameSession.cs" />
     <Compile Include="ClientLobbySession.cs" />
     <Compile Include="GameBase.cs" />
+    <Compile Include="ISpriteRenderer.cs" />
     <Compile Include="MapRenderer.cs" />
     <Compile Include="MouseHandler.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SpriteBatchRenderer.cs" />
     <Compile Include="VillageWindow.cs" />
     <Compile Include="Window.cs" />
     <Compile Include="UIManager.cs" />

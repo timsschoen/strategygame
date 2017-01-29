@@ -89,7 +89,7 @@ namespace strategygame_client
             Camera.setMapSize(Map.Width, Map.Height);
         }
 
-        public void Draw(Map Map, Dictionary<int, IEntity> MapEntities, SpriteBatch spriteBatch, float layerDepth)
+        public void Draw(Map Map, Dictionary<int, IEntity> MapEntities, ISpriteRenderer spriteRenderer, float layerDepth)
         {
             //Get Rectangle to draw from camera
             Rectangle toDraw = Camera.getRectangleToDraw();
@@ -112,7 +112,7 @@ namespace strategygame_client
                     //get destination rectangle
                     Rectangle cellRect = Camera.getRectangleToDrawCell(x, y);
 
-                    spriteBatch.Draw(BaseTexture, cellRect, null, Color.White, 0.0f, new Vector2(), SpriteEffects.None, layerDepth);
+                    spriteRenderer.Draw(BaseTexture, cellRect, layerDepth);
                 }
             }
 
@@ -136,7 +136,7 @@ namespace strategygame_client
                     if (!MapEntityTextures.ContainsKey(TypeName))
                         MapEntityTextures.Add(TypeName, Content.Load<Texture2D>("Map/Entities/" + TypeName));
 
-                    spriteBatch.Draw(MapEntityTextures[TypeName], cellRect, null, TintColor, 0.0f, Vector2.Zero, SpriteEffects.None, layerDepth + 0.01f);
+                    spriteRenderer.Draw(MapEntityTextures[TypeName], cellRect, layerDepth + 0.01f);
                 }
             }
         }                

@@ -14,7 +14,7 @@ namespace strategygame_common
 {
     public class MapCell
     {
-        public bool isWater { get; private set; }
+        public bool IsWater { get; private set; }
         public float Laufgeschwindigkeit { get; private set; }
         public float Fruchtbarkeit { get; private set; }
         public Resources ResourceFactors;
@@ -39,7 +39,12 @@ namespace strategygame_common
         Mountain,
         Water,
         Flatland,
+        Plateau,
         Swamp,
-        Hills
+        Hills,
+        Forest,
+        Ice,
+        Jungle,
+        Tundra
     }
 }

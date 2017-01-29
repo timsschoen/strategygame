@@ -53,4 +53,5 @@ namespace strategygame_common
             serializer.Serialize(writer, value);
         }
     }
+    
 }

@@ -36,17 +36,17 @@ namespace strategygame_client
 
         }
 
-        public ClientGameSession(GameConfiguration Configuration, GraphicsDevice GraphicsDevice, ContentManager Content, INetworkSender NetworkSender, ILogger Logger, int ScreenWidth, int ScreenHeight)
+        public ClientGameSession(GameConfiguration configuration, GraphicsDevice graphicsDevice, ContentManager content, INetworkSender networkSender, ILogger logger, int screenWidth, int screenHeight)
         {
-            mMap = Map.LoadFromFolder(GraphicsDevice, Content.RootDirectory + "/Maps/1");
-            mUI = new UIManager(Content, Configuration.BuildingInformation);
-            mMapRenderer = new MapRenderer(Content, mMap, ScreenWidth, ScreenHeight);
-            mMouseHandler = new MouseHandler(onMouseClick, onSelection, Content);
+            mMap = Map.LoadFromFolder(graphicsDevice, content.RootDirectory + "/Maps/1");
+            mUI = new UIManager(content, configuration.BuildingInformation, graphicsDevice);
+            mMapRenderer = new MapRenderer(content, mMap, screenWidth, screenHeight);
+            mMouseHandler = new MouseHandler(onMouseClick, onSelection, content);
             mLastUpdateTicks = DateTime.Now.Ticks;
 
-            this.mContent = Content;
-            this.mConfiguration = Configuration;
-            this.mLogger = Logger;
+            this.mContent = content;
+            this.mConfiguration = configuration;
+            this.mLogger = logger;
 
             mEntities = new Dictionary<int, IEntity>();
         }
@@ -65,14 +65,14 @@ namespace strategygame_client
         }
 
         /// <summary>
-        /// Draws the game to the given SpriteBatch
+        /// Draws the game to the given SpriteRenderer
         /// </summary>
-        /// <param name="spriteBatch"></param>
-        public void draw(SpriteBatch spriteBatch)
+        /// <param name="spriteRenderer"></param>
+        public void draw(ISpriteRenderer spriteRenderer)
         {
-            mMouseHandler.draw(spriteBatch, 1f);
-            mMapRenderer.Draw(mMap, mEntities, spriteBatch, 0.0f);
-            mUI.Draw(spriteBatch, 0.2f);
+            mMouseHandler.draw(spriteRenderer, 1f);
+            mMapRenderer.Draw(mMap, mEntities, spriteRenderer, 0.0f);
+            mUI.Draw(spriteRenderer, 0.2f);
         }
 
         public void handleNetworkMessage(IMessage newMessage)

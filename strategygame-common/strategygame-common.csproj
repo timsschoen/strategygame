@@ -51,7 +51,7 @@
     <Compile Include="BaseMessage.cs" />
     <Compile Include="BuildingInformation.cs" />
     <Compile Include="Camera.cs" />
-    <Compile Include="ConcreteJsonConverter.cs" />
+    <Compile Include="JSONConverters.cs" />
     <Compile Include="ConsoleLogger.cs" />
     <Compile Include="EntityCollection.cs" />
     <Compile Include="GameConfiguration.cs" />

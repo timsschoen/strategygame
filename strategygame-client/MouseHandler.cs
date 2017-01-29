@@ -88,16 +88,16 @@ namespace strategygame_client
             }
         }
 
-        public void draw(SpriteBatch spriteBatch, float LayerDepth)
+        public void draw(ISpriteRenderer spriteRenderer, float layerDepth)
         {
-            spriteBatch.Draw(texture: mCursorTexture, position: new Vector2(Mouse.GetState().X, Mouse.GetState().Y), layerDepth: LayerDepth);
+            spriteRenderer.Draw(mCursorTexture, new Rectangle(Mouse.GetState().Position, new Point(50,50)), layerDepth);
 
             if(mIsDragging)
             {
                 Point A = new Point(Math.Min(mMousePressStartPosition.X, Mouse.GetState().Position.X), Math.Min(mMousePressStartPosition.Y, Mouse.GetState().Position.Y));
                 Point RectangleSize = new Point(Math.Max(mMousePressStartPosition.X, Mouse.GetState().Position.X)-A.X, Math.Max(mMousePressStartPosition.Y, Mouse.GetState().Position.Y)-A.Y);
 
-                spriteBatch.Draw(texture: mSelectedBGTexture, destinationRectangle: new Rectangle(A, RectangleSize), layerDepth: LayerDepth-0.001f);
+                spriteRenderer.Draw(mSelectedBGTexture, new Rectangle(A, RectangleSize), layerDepth-0.001f);
             }
         }
     }

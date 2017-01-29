@@ -13,7 +13,6 @@ namespace strategygame_client
 {
     abstract class Window
     {
-        protected SpriteFont mFont;
         protected string mName;
         Texture2D mBackground;
         Texture2D mCloseSymbol;
@@ -48,21 +47,19 @@ namespace strategygame_client
         {
             this.mName = Name;
             
-            mFont = Content.Load<SpriteFont>("Default");
-
             mWindowRectangle = new Rectangle(X, Y, 100, 100);
             mBackground = Content.Load<Texture2D>("UI/Windows/WindowBG");
             mCloseSymbol = Content.Load<Texture2D>("Ui/Windows/WindowX");
         }
 
-        public virtual void Draw(SpriteBatch spriteBatch, float Layer)
+        public virtual void Draw(ISpriteRenderer spriteRenderer, float layerDepth)
         {
             if (!IsOpen)
                 return;
 
-            spriteBatch.Draw(mBackground, mWindowRectangle, null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer);
-            spriteBatch.Draw(mCloseSymbol, GetCloseSymbolRectangle(), null, Color.White, 0.0f, Vector2.Zero, SpriteEffects.None, Layer + 0.01f);
-            spriteBatch.DrawString(mFont, mName, new Vector2(mWindowRectangle.Left + 20, mWindowRectangle.Top + 10), Color.Black, 0.0f, Vector2.Zero, 1.0f, SpriteEffects.None, Layer+0.01f);
+            spriteRenderer.Draw(mBackground, mWindowRectangle, layerDepth);
+            spriteRenderer.Draw(mCloseSymbol, GetCloseSymbolRectangle(), layerDepth + 0.01f);
+            spriteRenderer.DrawString(mName, new Vector2(mWindowRectangle.Left + 20, mWindowRectangle.Top + 10), Color.White, layerDepth+0.01f);
         }
 
         public virtual void Update()

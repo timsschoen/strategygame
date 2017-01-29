@@ -12,14 +12,19 @@ namespace strategygame_common
 
         static string[] ResourceNames = { "Steine", "Lehm", "Holz", "Stroh", "Getreide" };
 
-        decimal[] Content;
+        public decimal[] Content;
 
         public Resources()
         {
             Content = new decimal[ResourceTypeCount];
         }
 
-        public bool ContainsEnough(IResources toTestAgainst)
+        public void Add(IResources resources)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ContainsMoreThan(IResources toTestAgainst)
         {
             bool Result = false;
 
@@ -36,19 +41,63 @@ namespace strategygame_common
             return Content[Type];
         }
 
-        public List<string> GetStringRepresentation()
+        public List<Tuple<int, string>> GetStringRepresentation()
         {
+            List<Tuple<int, string>> result = new List<Tuple<int, string>>();
+
             for(int i = 0; i < ResourceTypeCount; i++)
             {
-
+                if (Content[i] > 0)
+                    result.Add(new Tuple<int,string>(i, ResourceNames[i] + ": " + Content[i].ToString("{0:0.##}")));
             }
+
+            return result;
+        }
+
+        public void SetResourceCount(int type, decimal value)
+        {
+            if (type >= ResourceTypeCount || type < 0)
+            {
+                return;
+            }
+
+            Content[type] = value;
         }
     }
 
     public interface IResources
     {
-        bool ContainsEnough(IResources toTestAgainst);
-        decimal GetResourceCount(int Type);
-        List<string> GetStringRepresentation();
+        /// <summary>
+        /// tests if these resources contain more of each resource type stored in toTestAgainst
+        /// </summary>
+        /// <param name="toTestAgainst">resources to test against</param>
+        /// <returns></returns>
+        bool ContainsMoreThan(IResources toTestAgainst);
+
+        /// <summary>
+        /// get count of resources of the given type in this instance
+        /// </summary>
+        /// <param name="type">resourcetype</param>
+        /// <returns></returns>
+        decimal GetResourceCount(int type);
+        
+        /// <summary>
+        /// sets the new count for a resource type
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="value"></param>
+        void SetResourceCount(int type, decimal value);
+
+        /// <summary>
+        /// Adds all resources contained in resources to this instance
+        /// </summary>
+        /// <param name="resources">the resources to add</param>
+        void Add(IResources resources);
+
+        /// <summary>
+        /// Get string represtations of the resources stored
+        /// </summary>
+        /// <returns>list of tuples with resourcetype-id and the string represtation</returns>
+        List<Tuple<int,string>> GetStringRepresentation();
     }
 }

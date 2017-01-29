@@ -35,8 +35,16 @@ namespace strategygame_server
 
             if (Message is ClientLoadedMessage)
             {
+                //for the time being, spawn a village for test purposes
                 int NextID = Entities.NextID;
-                IEntity newEntity = new Village("TestDorf", Message.ClientID, new Vector2(10, 10), new Point(3,6), MapCellType.Flatland); 
+
+                Resources startRes = new Resources();
+                startRes.SetResourceCount(0, 200);
+                startRes.SetResourceCount(1, 200);
+                startRes.SetResourceCount(2, 200);
+                startRes.SetResourceCount(3, 200);
+
+                IEntity newEntity = new Village("TestDorf", Message.ClientID, new Vector2(10, 10), new Point(3,6), MapCellType.Flatland, startRes); 
                 Entities.Add(NextID, newEntity);
                 NetworkSender.SendOverNetwork(new EntityMessage(-1, NextID, newEntity));
             }

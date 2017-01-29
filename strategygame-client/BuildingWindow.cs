@@ -17,13 +17,23 @@ namespace strategygame_client
         Texture2D mBuildingSlotTexture;
         IBuildingInformation mBuildingInformation;
 
-        public BuildingWindow(string name, ContentManager content, int x, int y, IBuildingInformation buildingInformation) : base(name, content, x, y)
+        //For Rendering scrolling box
+        RenderTarget2D mRenderTarget;
+        GraphicsDevice mGraphicsDevice;
+        ISpriteRenderer mScrollBoxSpriteRenderer;
+
+        public BuildingWindow(string name, ContentManager content, int x, int y, IBuildingInformation buildingInformation, GraphicsDevice graphicsDevice) : base(name, content, x, y)
         {
             mWindowRectangle.Width = 300;
             mWindowRectangle.Height = 300;
             IsOpen = false;
             mBuildingSlotTexture = content.Load<Texture2D>("UI/Windows/BuildingSlot");
             this.mBuildingInformation = buildingInformation;
+            mRenderTarget = new RenderTarget2D(graphicsDevice, 280, 500, false,
+                 graphicsDevice.PresentationParameters.BackBufferFormat,
+                 DepthFormat.Depth24);
+            mGraphicsDevice = graphicsDevice;
+            mScrollBoxSpriteRenderer = new SpriteBatchRenderer(new SpriteBatch(mGraphicsDevice), content.Load<SpriteFont>("Default"));
         }
 
         /// <summary>
@@ -40,11 +50,11 @@ namespace strategygame_client
         /// 
         /// </summary>
         /// <param name="village"></param>
-        /// <param name="spriteBatch"></param>
+        /// <param name="spriteRenderer"></param>
         /// <param name="Layer"></param>
-        public void draw(IVillage village, SpriteBatch spriteBatch, float Layer)
+        public void draw(IVillage village, ISpriteRenderer spriteRenderer, float Layer)
         {
-            base.Draw(spriteBatch, Layer);
+            base.Draw(spriteRenderer, Layer);
 
             if (village == null)
                 IsOpen = false;
@@ -63,9 +73,9 @@ namespace strategygame_client
                 mName = "Leerer Gebäude-Slot";
                 mWindowRectangle.Height = 500;
 
-                Texture2D BuildingOptions = getAllBuildingOptions(village, spriteBatch.GraphicsDevice);
+                Texture2D BuildingOptions = getAllBuildingOptions(village);
 
-                spriteBatch.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450), null, Color.White, 0f, Vector2.Zero, SpriteEffects.None, Layer+0.05f);
+                spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450), Layer+0.05f);
 
             }
             else
@@ -82,18 +92,11 @@ namespace strategygame_client
         /// <param name="village">the village we are in, needed for information about resources or building dependencies</param>
         /// <param name="device">the game's graphic device</param>
         /// <returns></returns>
-        Texture2D getAllBuildingOptions(IVillage village, GraphicsDevice device)
+        Texture2D getAllBuildingOptions(IVillage village)
         {
-            //TODO: dont create a spritebatch every frame
-
-            RenderTarget2D renderTarget = new RenderTarget2D(device, 280, 500, false,
-                device.PresentationParameters.BackBufferFormat,
-                DepthFormat.Depth24);
-            device.SetRenderTarget(renderTarget);
-
-            device.Clear(Color.Transparent);
-            SpriteBatch spriteBatch = new SpriteBatch(device);
-            spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp);
+            mGraphicsDevice.SetRenderTarget(mRenderTarget);
+            mGraphicsDevice.Clear(Color.Transparent);
+            mScrollBoxSpriteRenderer.Begin();
 
             List<int> BuildableBuildings = mBuildingInformation.BuildableBuildings(village.Buildings, village.CellType);
 
@@ -101,25 +104,51 @@ namespace strategygame_client
             {
                 SingleBuildingInformation info = mBuildingInformation.getBuildingInfo(BuildableBuildings[i]);
 
-                renderBuildingInformation(spriteBatch, new Vector2(50, 50 + 100 * i), village, info, 1);
+                renderBuildingInformation(mScrollBoxSpriteRenderer, new Point(10, 50 + 100 * i), village, info, 1);
             }
 
-            spriteBatch.End();
-            device.SetRenderTarget(null);
-            return renderTarget;
+            mScrollBoxSpriteRenderer.End();
+            mGraphicsDevice.SetRenderTarget(null);
+            return mRenderTarget;
         }
 
         /// <summary>
         /// Renders information about the given buildingtype at the given level to the given spritebatch, starting (top-left-corner) at the renderStart-Point
         /// </summary>
-        /// <param name="spriteBatch">a initilized SpriteBatch-object to draw to</param>
+        /// <param name="spriteRenderer">a initilized ISpriteRenderer-object to draw to</param>
         /// <param name="renderStart">vector to be the top-left corner of the information about the building</param>
         /// <param name="village">The village we are in</param>
         /// <param name="buildingInfo">Information about the building to be built</param>
-        /// <param name="buildingLevel">desired level of the building</param>
-        private void renderBuildingInformation(SpriteBatch spriteBatch, Vector2 renderStart, IVillage village, SingleBuildingInformation buildingInfo, int buildingLevel)
+        /// <param name="buildingLevel">desired level of the building</param>     
+        /// <returns>Height of the item</returns>    
+        private int renderBuildingInformation(ISpriteRenderer spriteRenderer, Point renderStart, IVillage village, SingleBuildingInformation buildingInfo, int buildingLevel)
         {
-            spriteBatch.DrawString(mFont, buildingInfo.Name, renderStart + new Vector2(5,5), Color.Black);
+            if (buildingInfo.ConstructionResources.Count <= buildingLevel)
+                return 0;
+
+            IResources resourcesToUpgrade = buildingInfo.ConstructionResources[buildingLevel];
+
+            List<Tuple<int,string>> resourceList = resourcesToUpgrade.GetStringRepresentation();
+            int resourceCount = resourceList.Count;
+            int itemHeight = Math.Max(resourceCount * 15, 100);
+            
+            spriteRenderer.DrawRectanglePrimitive(new Rectangle(renderStart, new Point(280, itemHeight)),3, Color.Black, false, 1f);
+
+            for(int i = 0; i < resourceCount; i++)
+            {
+                Color resourceColor = Color.Black;
+
+                if (village.Resources.GetResourceCount(resourceList[i].Item1) < resourcesToUpgrade.GetResourceCount(resourceList[i].Item1))
+                    resourceColor = Color.Red;
+
+                spriteRenderer.DrawString(resourceList[i].Item2, new Vector2(renderStart.X + 100, renderStart.Y + i * 20), resourceColor, 1f);
+            }
+
+            spriteRenderer.DrawString(buildingInfo.Name, new Vector2(renderStart.X + 5, renderStart.Y + 5), Color.Black, 1f);
+
+            spriteRenderer.DrawText(buildingInfo.Description, new Rectangle(renderStart.X + 5, renderStart.Y + 20, 100, 50), Color.Black, 1f);
+
+            return itemHeight;
         }
     }
 }

@@ -23,7 +23,7 @@ namespace strategygame_client
         GameState State = GameState.Lobby;
 
         GraphicsDeviceManager graphics;
-        SpriteBatch spriteBatch;
+        ISpriteRenderer spriteRenderer;
         
         NetworkClient Client;
 
@@ -75,7 +75,7 @@ namespace strategygame_client
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);    
+            spriteRenderer = new SpriteBatchRenderer(new SpriteBatch(GraphicsDevice), Content.Load<SpriteFont>("Default"));    
                     
         }
 
@@ -136,12 +136,12 @@ namespace strategygame_client
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.Black);
-            spriteBatch.Begin(SpriteSortMode.FrontToBack);
+            spriteRenderer.Begin();
 
             if(State == GameState.InGame)
-                GameSession.draw(spriteBatch);
+                GameSession.draw(spriteRenderer);
 
-            spriteBatch.End();
+            spriteRenderer.End();
 
             base.Draw(gameTime);
         }

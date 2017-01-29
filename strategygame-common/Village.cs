@@ -20,17 +20,19 @@ namespace strategygame_common
         public float Hitboxsize { get; set; }
         public Point BuildingSlots { get; set; }
         public MapCellType CellType { get; set; }
+        public IResources Resources { get; set; }
 
         new public void ClientInitialize()
         {
             Hitboxsize = 0.5f;
         }
 
-        public Village(string Name, int Owner, Vector2 Position, Point BuildingSlots, MapCellType CellType) : base(Name, Owner)
+        public Village(string Name, int Owner, Vector2 Position, Point BuildingSlots, MapCellType CellType, IResources Resources) : base(Name, Owner)
         {
             this.Position = Position;
             this.BuildingSlots = BuildingSlots;
             this.CellType = CellType;
+            this.Resources = Resources;
             Buildings = new Point[BuildingSlots.X * BuildingSlots.Y];
         }        
     }

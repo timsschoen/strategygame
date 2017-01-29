@@ -66,7 +66,7 @@ namespace strategygame_common
 
             IResources NeededResources = getResources(BuildingType, Level);
 
-            if (NeededResources == null || !Resources.ContainsEnough(NeededResources))
+            if (NeededResources == null || !Resources.ContainsMoreThan(NeededResources))
                 return false;
 
             return true;

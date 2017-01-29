@@ -9,6 +9,6 @@ namespace strategygame_common
     //Entity storing resources
     public interface IResourceStore
     {
-
+        IResources Resources { get; set; }
     }
 }
