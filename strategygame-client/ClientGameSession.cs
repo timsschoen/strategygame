@@ -39,7 +39,7 @@ namespace strategygame_client
         public ClientGameSession(GameConfiguration configuration, GraphicsDevice graphicsDevice, ContentManager content, INetworkSender networkSender, ILogger logger, int screenWidth, int screenHeight)
         {
             mMap = Map.LoadFromFolder(graphicsDevice, content.RootDirectory + "/Maps/1");
-            mUI = new UIManager(content, configuration.BuildingInformation, graphicsDevice);
+            mUI = new UIManager(content, configuration.BuildingInformation, graphicsDevice, networkSender);
             mMapRenderer = new MapRenderer(content, mMap, screenWidth, screenHeight);
             mMouseHandler = new MouseHandler(onMouseClick, onSelection, content);
             mLastUpdateTicks = DateTime.Now.Ticks;

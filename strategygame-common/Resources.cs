@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,9 +7,11 @@ using System.Threading.Tasks;
 
 namespace strategygame_common
 {
+
+    [JsonConverter(typeof(ResourceConverter))]
     public class Resources : IResources
     {
-        const int ResourceTypeCount = 5;
+        public const int ResourceTypeCount = 5;
 
         static string[] ResourceNames = { "Steine", "Lehm", "Holz", "Stroh", "Getreide" };
 
@@ -48,10 +51,20 @@ namespace strategygame_common
             for(int i = 0; i < ResourceTypeCount; i++)
             {
                 if (Content[i] > 0)
-                    result.Add(new Tuple<int,string>(i, ResourceNames[i] + ": " + Content[i].ToString("{0:0.##}")));
+                    result.Add(new Tuple<int,string>(i, ResourceNames[i] + ": " + Content[i].ToString()));
             }
 
             return result;
+        }
+
+        public string GetStringRepresentation(int resourceType)
+        {
+            if (ResourceTypeCount <= resourceType)
+            {
+                return "";
+            }
+
+            return ResourceNames[resourceType] + ": " + Content[resourceType].ToString();
         }
 
         public void SetResourceCount(int type, decimal value)
@@ -65,6 +78,7 @@ namespace strategygame_common
         }
     }
 
+    [JsonConverter(typeof(ResourceConverter))]
     public interface IResources
     {
         /// <summary>
@@ -99,5 +113,12 @@ namespace strategygame_common
         /// </summary>
         /// <returns>list of tuples with resourcetype-id and the string represtation</returns>
         List<Tuple<int,string>> GetStringRepresentation();
+
+        /// <summary>
+        /// Get string represtations of a specific resources stored
+        /// </summary>
+        /// <param name="type">resourcetype</param>
+        /// <returns>string represtation</returns>
+        string GetStringRepresentation(int resourceType);
     }
 }

@@ -53,5 +53,6 @@ namespace strategygame_common
         public int BuildingPosition;
         public int BuildingType;
         public int Level;
+        public int VillageID;
     }
 }

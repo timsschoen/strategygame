@@ -17,7 +17,9 @@ namespace strategygame_client
         Texture2D mBuildingSlotTexture;
         BuildingWindow mBuildingWindow;
 
-        const int TILESIZE = 50;
+        INetworkSender mNetworkSender;
+
+        const int TILESIZE = 60;
         
         /// <summary>
         /// Calculates the position of the tile in row y, and column x, according to tilesize and window position
@@ -27,16 +29,30 @@ namespace strategygame_client
         /// <returns></returns>
         Rectangle TileDrawPosition(int x, int y)
         {
-            return new Rectangle(mWindowRectangle.X + 50 + x * TILESIZE, mWindowRectangle.Y + 50 + y * TILESIZE, TILESIZE, TILESIZE);
+            return new Rectangle(mWindowRectangle.X + 25 + x * TILESIZE, mWindowRectangle.Y + 75 + y * TILESIZE, TILESIZE, TILESIZE);
         }
 
-        public VillageWindow(string Name, ContentManager Content, int X, int Y, IBuildingInformation BuildingInformation, GraphicsDevice graphicsDevice) : base(Name, Content, X, Y)
+        public VillageWindow(string Name, ContentManager Content, int X, int Y, IBuildingInformation BuildingInformation, GraphicsDevice graphicsDevice, INetworkSender networkSender) : base(Name, Content, X, Y)
         {
             mWindowRectangle.Width = 400;
             mWindowRectangle.Height = 500;
             mBuildingSlotTexture = Content.Load<Texture2D>("UI/Windows/BuildingSlot");
             mBuildingWindow = new BuildingWindow("BuildingWindow", Content, mWindowRectangle.Right + 5, mWindowRectangle.Y, BuildingInformation, graphicsDevice);
+            mBuildingWindow.OnBuildingUpgrade += BuildingUpgradeHandler;
+            mNetworkSender = networkSender;
+
             IsOpen = false;
+        }
+
+        private void BuildingUpgradeHandler(int slot, int buildingType, int buildingLevel)
+        {
+            BuildingMessage message = new BuildingMessage();
+            message.BuildingPosition = slot;
+            message.BuildingType = buildingType;
+            message.Level = buildingLevel;
+            message.VillageID = selectedVillage;
+
+            mNetworkSender.SendOverNetwork(message);
         }
 
         public void setVillage(int Village)
@@ -80,9 +96,19 @@ namespace strategygame_client
             this.mName = mVillage.Name;
 
             mBuildingWindow.SetWindowPosition(mWindowRectangle.Right + 5, mWindowRectangle.Y);
-            mBuildingWindow.draw(mVillage, spriteRenderer, layerDepth);
+            mBuildingWindow.Draw(mVillage, spriteRenderer, layerDepth);
+
+            Vector2 drawingOffset = new Vector2(mWindowRectangle.X, mWindowRectangle.Y);
+
+            List<Tuple<int, string>> resourceList = mVillage.Resources.GetStringRepresentation();
+            int resourceCount = resourceList.Count;
             
-            for(int x = 0; x < mVillage.BuildingSlots.X; x++)
+            for (int i = 0; i < resourceCount; i++)
+            {                
+                spriteRenderer.DrawString(resourceList[i].Item2, drawingOffset + new Vector2(270, 80 + i * 25), Color.Black, 1f);
+            }
+
+            for (int x = 0; x < mVillage.BuildingSlots.X; x++)
             {
                 for(int y = 0; y < mVillage.BuildingSlots.Y; y++)
                 {
@@ -96,17 +122,25 @@ namespace strategygame_client
             if (!IsOpen || mVillage == null)
                 return;
 
-            for (int x = 0; x < mVillage.BuildingSlots.X; x++)
+            if (mBuildingWindow.ContainsScreenPoint(p))
             {
-                for (int y = 0; y < mVillage.BuildingSlots.Y; y++)
+                mBuildingWindow.HandleMouseClick(p);
+            }
+            else
+            {
+                for (int x = 0; x < mVillage.BuildingSlots.X; x++)
                 {
-                    if(TileDrawPosition(x, y).Contains(p))
+                    for (int y = 0; y < mVillage.BuildingSlots.Y; y++)
                     {
-                        mBuildingWindow.setSlot(y*Village.MaxBuildingsInOneRow + x);
-                        return;
+                        if (TileDrawPosition(x, y).Contains(p))
+                        {
+                            mBuildingWindow.setSlot(y * mVillage.BuildingSlots.X + x, mVillage);
+                            return;
+                        }
                     }
                 }
             }
+            
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,5 +54,55 @@ namespace strategygame_common
             serializer.Serialize(writer, value);
         }
     }
-    
+
+    public class ResourceConverter : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return (objectType == typeof(IResources) || objectType == typeof(Resources));           
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            JObject obj = JObject.Load(reader);
+
+            Resources parsedResources = new Resources();
+
+            Dictionary<int, decimal> values = obj.ToObject<Dictionary<int, decimal>>();
+
+            foreach(KeyValuePair<int,decimal> kvp in values)
+            {
+                parsedResources.SetResourceCount(kvp.Key, kvp.Value);
+            }
+
+            return parsedResources;
+
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            if((value is IResources) || !(value is Resources))
+            {
+                writer.WriteStartObject();
+                                
+                for(int i = 0; i < Resources.ResourceTypeCount; i++)
+                {
+                    decimal val = ((IResources)value).GetResourceCount(i);
+
+                    if(val != 0)
+                    {
+                        writer.WritePropertyName(i.ToString());
+                        writer.WriteValue(val);
+                    }                         
+                }
+                
+                writer.WriteEndObject();
+            }
+            else
+            {
+                JToken.FromObject(value).WriteTo(writer);
+            }
+        }
+    }
+
 }

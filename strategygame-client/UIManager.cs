@@ -14,9 +14,9 @@ namespace strategygame_client
     {
         public VillageWindow VillageWindow;
 
-        public UIManager(ContentManager Content, IBuildingInformation BuildingData, GraphicsDevice graphicsDevice)
+        public UIManager(ContentManager Content, IBuildingInformation BuildingData, GraphicsDevice graphicsDevice, INetworkSender networkSender)
         {
-            VillageWindow = new VillageWindow("Dorf", Content, 100, 100, BuildingData, graphicsDevice);
+            VillageWindow = new VillageWindow("Dorf", Content, 100, 100, BuildingData, graphicsDevice, networkSender);
         }
         
         public bool ContainsScreenPoint(Point p)

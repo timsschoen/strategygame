@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using strategygame_client.GUI;
 using strategygame_common;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace strategygame_client
 {
     class BuildingWindow : Window
     {
+        public delegate void BuildingUpgradeClicked(int slot, int buildingType, int buildingLevel);
+
         int mSelectedSlot;
         Texture2D mBuildingSlotTexture;
         IBuildingInformation mBuildingInformation;
@@ -21,6 +24,10 @@ namespace strategygame_client
         RenderTarget2D mRenderTarget;
         GraphicsDevice mGraphicsDevice;
         ISpriteRenderer mScrollBoxSpriteRenderer;
+
+        public event BuildingUpgradeClicked OnBuildingUpgrade;
+
+        BuildingUpgradeList mUpgradeList;
 
         public BuildingWindow(string name, ContentManager content, int x, int y, IBuildingInformation buildingInformation, GraphicsDevice graphicsDevice) : base(name, content, x, y)
         {
@@ -34,15 +41,46 @@ namespace strategygame_client
                  DepthFormat.Depth24);
             mGraphicsDevice = graphicsDevice;
             mScrollBoxSpriteRenderer = new SpriteBatchRenderer(new SpriteBatch(mGraphicsDevice), content.Load<SpriteFont>("Default"));
+
+            mUpgradeList = new BuildingUpgradeList(content);
+            mUpgradeList.OnBuildClicked += BuildingUpgradeClickedEventHandler;
+            
+        }
+
+        private void BuildingUpgradeClickedEventHandler(int buildingType, int buildingLevel)
+        {
+            if(OnBuildingUpgrade != null)
+            {
+                OnBuildingUpgrade(mSelectedSlot, buildingType, buildingLevel);
+            }
+            IsOpen = false;
         }
 
         /// <summary>
         /// Sets this window's selected slot the given slot and opens it, if closed
         /// </summary>
         /// <param name="selectedSlot">the building slot to display information about</param>
-        public void setSlot(int selectedSlot)
+        public void setSlot(int selectedSlot, IVillage village)
         {
             this.mSelectedSlot = selectedSlot;
+
+            Point buildingAndLevel = village.Buildings[mSelectedSlot];
+
+            if (buildingAndLevel.X == 0)
+            {
+                //empty Building Slot
+                mName = "Leerer Gebäude-Slot";
+                mWindowRectangle.Height = 500;
+                mUpgradeList.ShowAllNewBuildings(mBuildingInformation, village);
+            }
+            else
+            {
+                //show Building Information
+                mName = mBuildingInformation.getBuildingInfo(buildingAndLevel.X).Name;
+                mWindowRectangle.Height = 300;
+                mUpgradeList.ShowBuildingUpdate(mBuildingInformation, village, buildingAndLevel);
+            }
+
             IsOpen = true;
         }
 
@@ -52,7 +90,7 @@ namespace strategygame_client
         /// <param name="village"></param>
         /// <param name="spriteRenderer"></param>
         /// <param name="Layer"></param>
-        public void draw(IVillage village, ISpriteRenderer spriteRenderer, float Layer)
+        public void Draw(IVillage village, ISpriteRenderer spriteRenderer, float Layer)
         {
             base.Draw(spriteRenderer, Layer);
 
@@ -64,26 +102,10 @@ namespace strategygame_client
 
             if (!IsOpen)
                 return;
+            
+            Texture2D BuildingOptions = getAllBuildingOptions(village);
 
-            Point buildingAndLevel = village.Buildings[mSelectedSlot];
-
-            if(buildingAndLevel.X == 0)
-            {
-                //empty Building Slot
-                mName = "Leerer Gebäude-Slot";
-                mWindowRectangle.Height = 500;
-
-                Texture2D BuildingOptions = getAllBuildingOptions(village);
-
-                spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450), Layer+0.05f);
-
-            }
-            else
-            {
-                //show Building Information
-                mName = mBuildingInformation.getBuildingInfo(buildingAndLevel.X).Name;
-                mWindowRectangle.Height = 300;
-            }
+            spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450), Layer + 0.05f);
         }
 
         /// <summary>
@@ -98,57 +120,20 @@ namespace strategygame_client
             mGraphicsDevice.Clear(Color.Transparent);
             mScrollBoxSpriteRenderer.Begin();
 
-            List<int> BuildableBuildings = mBuildingInformation.BuildableBuildings(village.Buildings, village.CellType);
-
-            for(int i = 0; i < BuildableBuildings.Count; i++)
-            {
-                SingleBuildingInformation info = mBuildingInformation.getBuildingInfo(BuildableBuildings[i]);
-
-                renderBuildingInformation(mScrollBoxSpriteRenderer, new Point(10, 50 + 100 * i), village, info, 1);
-            }
+            mUpgradeList.SetVillage(village);
+            mUpgradeList.Draw(Vector2.Zero, mScrollBoxSpriteRenderer, 0, 1f);
 
             mScrollBoxSpriteRenderer.End();
             mGraphicsDevice.SetRenderTarget(null);
             return mRenderTarget;
         }
 
-        /// <summary>
-        /// Renders information about the given buildingtype at the given level to the given spritebatch, starting (top-left-corner) at the renderStart-Point
-        /// </summary>
-        /// <param name="spriteRenderer">a initilized ISpriteRenderer-object to draw to</param>
-        /// <param name="renderStart">vector to be the top-left corner of the information about the building</param>
-        /// <param name="village">The village we are in</param>
-        /// <param name="buildingInfo">Information about the building to be built</param>
-        /// <param name="buildingLevel">desired level of the building</param>     
-        /// <returns>Height of the item</returns>    
-        private int renderBuildingInformation(ISpriteRenderer spriteRenderer, Point renderStart, IVillage village, SingleBuildingInformation buildingInfo, int buildingLevel)
+        public override void HandleMouseClick(Point p)
         {
-            if (buildingInfo.ConstructionResources.Count <= buildingLevel)
-                return 0;
-
-            IResources resourcesToUpgrade = buildingInfo.ConstructionResources[buildingLevel];
-
-            List<Tuple<int,string>> resourceList = resourcesToUpgrade.GetStringRepresentation();
-            int resourceCount = resourceList.Count;
-            int itemHeight = Math.Max(resourceCount * 15, 100);
-            
-            spriteRenderer.DrawRectanglePrimitive(new Rectangle(renderStart, new Point(280, itemHeight)),3, Color.Black, false, 1f);
-
-            for(int i = 0; i < resourceCount; i++)
+            if(new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450).Contains(p))
             {
-                Color resourceColor = Color.Black;
-
-                if (village.Resources.GetResourceCount(resourceList[i].Item1) < resourcesToUpgrade.GetResourceCount(resourceList[i].Item1))
-                    resourceColor = Color.Red;
-
-                spriteRenderer.DrawString(resourceList[i].Item2, new Vector2(renderStart.X + 100, renderStart.Y + i * 20), resourceColor, 1f);
+                mUpgradeList.HandleMouseClick(new Point(p.X - mWindowRectangle.X, p.Y - mWindowRectangle.Y - 50));
             }
-
-            spriteRenderer.DrawString(buildingInfo.Name, new Vector2(renderStart.X + 5, renderStart.Y + 5), Color.Black, 1f);
-
-            spriteRenderer.DrawText(buildingInfo.Description, new Rectangle(renderStart.X + 5, renderStart.Y + 20, 100, 50), Color.Black, 1f);
-
-            return itemHeight;
         }
     }
 }

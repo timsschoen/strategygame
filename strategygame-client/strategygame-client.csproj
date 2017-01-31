@@ -48,6 +48,10 @@
     <Compile Include="ClientGameSession.cs" />
     <Compile Include="ClientLobbySession.cs" />
     <Compile Include="GameBase.cs" />
+    <Compile Include="GUI\BuildingUpgradeList.cs" />
+    <Compile Include="GUI\BuildingUpgradeOption.cs" />
+    <Compile Include="GUI\Button.cs" />
+    <Compile Include="GUI\IGUIElement.cs" />
     <Compile Include="ISpriteRenderer.cs" />
     <Compile Include="MapRenderer.cs" />
     <Compile Include="MouseHandler.cs" />
