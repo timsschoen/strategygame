@@ -20,16 +20,17 @@ namespace strategygame_server
         //Ticks and Time
         long Ticks = 0;
         long LastUpdateTicks;
+        long LastClientSyncTick;
 
         //Speed, set 0 for pause
-        int GameSpeed = 1;
+        float GameSpeed = 1;
 
         public ServerGameSession(INetworkSender NetworkSender, ILogger Logger, GameConfiguration Configuration)
         {
             this.Configuration = Configuration;
             Entities = new EntityCollection();
             VillageSystem = new VillageSystem(NetworkSender, Logger, Configuration.BuildingInformation);
-            LastUpdateTicks = DateTime.Now.Ticks;
+            LastUpdateTicks = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
             this.NetworkSender = NetworkSender;
             this.Logger = Logger;
         }
@@ -47,8 +48,17 @@ namespace strategygame_server
 
         public void Update()
         {
-            Ticks += GameSpeed * (DateTime.Now.Ticks - LastUpdateTicks);
+            Ticks += (long)(GameSpeed * ((long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds - LastUpdateTicks));
+            LastUpdateTicks = (long)((long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds);
+
             VillageSystem.Update(ref Entities, Ticks);
+
+            if(Ticks - LastClientSyncTick > 1000)
+            {
+                LastClientSyncTick = Ticks;
+
+                NetworkSender.SendOverNetwork(new TickMessage(Ticks,GameSpeed));
+            }
         }
     }
 }

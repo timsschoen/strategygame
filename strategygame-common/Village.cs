@@ -15,7 +15,7 @@ namespace strategygame_common
         public Vector2 Position { get; set; }
         public bool isSelected { get; set; } = false;
         public List<ConstructionProcess> ParallelConstructions { get; set; }
-        public List<QueuedJob> ConstructionQueue { get; set; }
+        public Queue<QueuedJob> ConstructionQueue { get; set; }
         public Point[] Buildings { get; set; }
         public float Hitboxsize { get; set; }
         public Point BuildingSlots { get; set; }
@@ -33,6 +33,8 @@ namespace strategygame_common
             this.BuildingSlots = BuildingSlots;
             this.CellType = CellType;
             this.Resources = Resources;
+            this.ConstructionQueue = new Queue<QueuedJob>();
+            this.ParallelConstructions = new List<ConstructionProcess>();
             Buildings = new Point[BuildingSlots.X * BuildingSlots.Y];
         }        
     }
@@ -41,7 +43,7 @@ namespace strategygame_common
     {
         Point[] Buildings { get; set; }
         List<ConstructionProcess> ParallelConstructions { get; set; }
-        List<QueuedJob> ConstructionQueue { get; set; }
+        Queue<QueuedJob> ConstructionQueue { get; set; }
 
         //X * Y Grid for buildings
         Point BuildingSlots { get; set; }
@@ -54,5 +56,5 @@ namespace strategygame_common
         public int BuildingType;
         public int Level;
         public int VillageID;
-    }
+    }    
 }

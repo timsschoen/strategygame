@@ -57,7 +57,7 @@ namespace strategygame_client.GUI
             for (int i = 0; i < BuildableBuildings.Count; i++)
             {
                 SingleBuildingInformation info = buildingInformation.getBuildingInfo(BuildableBuildings[i]);
-                BuildingUpgradeOption upgradeOption = new BuildingUpgradeOption(mContent, new Rectangle(10, 50 + currentHeight, 240, 100), BuildableBuildings[i], buildingInformation.getBuildingInfo(BuildableBuildings[i]), 0);
+                BuildingUpgradeOption upgradeOption = new BuildingUpgradeOption(mContent, new Rectangle(10, 50 + currentHeight, 240, 100), BuildableBuildings[i], buildingInformation.getBuildingInfo(BuildableBuildings[i]), 1);
                 upgradeOption.OnBuild += UpgradeOption_OnBuild;
                 currentHeight += upgradeOption.GetHeight();
                 mUpgradeOptions.Add(upgradeOption);

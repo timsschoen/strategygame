@@ -24,14 +24,20 @@ namespace strategygame_common
 
         public void Add(IResources resources)
         {
-            throw new NotImplementedException();
+            for (int i = 0; i < ResourceTypeCount; i++)
+            {
+                Content[i] += resources.GetResourceCount(i);
+            }
         }
 
         public bool ContainsMoreThan(IResources toTestAgainst)
         {
-            bool Result = false;
-
-            return Result;
+            for (int i = 0; i < ResourceTypeCount; i++)
+            {
+                if(Content[i] < toTestAgainst.GetResourceCount(i))
+                    return false;                
+            }
+            return true;
         }
 
         public decimal GetResourceCount(int Type)
@@ -76,6 +82,14 @@ namespace strategygame_common
 
             Content[type] = value;
         }
+
+        public void Subtract(IResources resources)
+        {
+            for(int i = 0; i < ResourceTypeCount; i++)
+            {
+                Content[i] -= resources.GetResourceCount(i);
+            }
+        }
     }
 
     [JsonConverter(typeof(ResourceConverter))]
@@ -107,6 +121,12 @@ namespace strategygame_common
         /// </summary>
         /// <param name="resources">the resources to add</param>
         void Add(IResources resources);
+
+        /// <summary>
+        /// Subtracts all resources contained in resources from this instance
+        /// </summary>
+        /// <param name="resources">the resources to add</param>
+        void Subtract(IResources resources);
 
         /// <summary>
         /// Get string represtations of the resources stored

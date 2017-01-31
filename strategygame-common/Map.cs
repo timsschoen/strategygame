@@ -21,7 +21,7 @@ namespace strategygame_common
         {
             MonoGame.Utilities.Png.PngReader Reader = new MonoGame.Utilities.Png.PngReader();
 
-            Texture2D BaseTypePNG = Reader.Read(File.Open(PathToFolder + "/Map.png", FileMode.Open), device);
+            Texture2D BaseTypePNG = Reader.Read(File.Open(PathToFolder + "/Map.png", System.IO.FileMode.Open), device);
                         
             Map map = new Map(BaseTypePNG.Height, BaseTypePNG.Width);
 

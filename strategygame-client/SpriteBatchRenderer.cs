@@ -40,10 +40,17 @@ namespace strategygame_client
             Color[] colorArray = new Color[1] { color };
             texture.SetData<Color>(colorArray);
 
-            Draw(texture, new Rectangle(rectangle.Location, new Point(borderWidth, rectangle.Height)), layerDepth);
-            Draw(texture, new Rectangle(rectangle.Location, new Point(rectangle.Width, borderWidth)), layerDepth);
-            Draw(texture, new Rectangle(new Point(rectangle.Right-borderWidth, rectangle.Top), new Point(borderWidth, rectangle.Height)), layerDepth);
-            Draw(texture, new Rectangle(new Point(rectangle.X, rectangle.Bottom - borderWidth), new Point(rectangle.Width, borderWidth)), layerDepth);
+            if (filled)
+            {
+                Draw(texture, rectangle, layerDepth);
+            }
+            else
+            {
+                Draw(texture, new Rectangle(rectangle.Location, new Point(borderWidth, rectangle.Height)), layerDepth);
+                Draw(texture, new Rectangle(rectangle.Location, new Point(rectangle.Width, borderWidth)), layerDepth);
+                Draw(texture, new Rectangle(new Point(rectangle.Right - borderWidth, rectangle.Top), new Point(borderWidth, rectangle.Height)), layerDepth);
+                Draw(texture, new Rectangle(new Point(rectangle.X, rectangle.Bottom - borderWidth), new Point(rectangle.Width, borderWidth)), layerDepth);
+            }
         }
 
         public void DrawString(string stringToDraw, Vector2 drawPosition, Color color, float layerDepth)

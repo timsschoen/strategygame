@@ -130,6 +130,8 @@ namespace strategygame_common
         public List<Point> Dependencies;
         public MapCellType? CellType;
 
+        public List<int> ConstructionTimes;
+
         [JsonConverter(typeof(ConcreteListJsonConverter<IResources, Resources>))]
         public List<IResources> ConstructionResources;
 

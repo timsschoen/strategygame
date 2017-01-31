@@ -16,7 +16,7 @@ namespace strategygame_client
         int selectedVillage = -1;
         Texture2D mBuildingSlotTexture;
         BuildingWindow mBuildingWindow;
-
+        IBuildingInformation mBuildingInformation;
         INetworkSender mNetworkSender;
 
         const int TILESIZE = 60;
@@ -32,14 +32,15 @@ namespace strategygame_client
             return new Rectangle(mWindowRectangle.X + 25 + x * TILESIZE, mWindowRectangle.Y + 75 + y * TILESIZE, TILESIZE, TILESIZE);
         }
 
-        public VillageWindow(string Name, ContentManager Content, int X, int Y, IBuildingInformation BuildingInformation, GraphicsDevice graphicsDevice, INetworkSender networkSender) : base(Name, Content, X, Y)
+        public VillageWindow(string name, ContentManager content, int X, int Y, IBuildingInformation buildingInformation, GraphicsDevice graphicsDevice, INetworkSender networkSender) : base(name, content, X, Y)
         {
             mWindowRectangle.Width = 400;
-            mWindowRectangle.Height = 500;
-            mBuildingSlotTexture = Content.Load<Texture2D>("UI/Windows/BuildingSlot");
-            mBuildingWindow = new BuildingWindow("BuildingWindow", Content, mWindowRectangle.Right + 5, mWindowRectangle.Y, BuildingInformation, graphicsDevice);
+            mWindowRectangle.Height = 600;
+            mBuildingSlotTexture = content.Load<Texture2D>("UI/Windows/BuildingSlot");
+            mBuildingWindow = new BuildingWindow("BuildingWindow", content, mWindowRectangle.Right + 5, mWindowRectangle.Y, buildingInformation, graphicsDevice);
             mBuildingWindow.OnBuildingUpgrade += BuildingUpgradeHandler;
             mNetworkSender = networkSender;
+            mBuildingInformation = buildingInformation;
 
             IsOpen = false;
         }
@@ -86,7 +87,7 @@ namespace strategygame_client
             mBuildingWindow.Update();
         }
 
-        public override void Draw(ISpriteRenderer spriteRenderer, float layerDepth)
+        public void Draw(ISpriteRenderer spriteRenderer, float layerDepth, long ticks)
         {            
             if (!IsOpen || mVillage == null)
                 return;
@@ -105,7 +106,33 @@ namespace strategygame_client
             
             for (int i = 0; i < resourceCount; i++)
             {                
-                spriteRenderer.DrawString(resourceList[i].Item2, drawingOffset + new Vector2(270, 80 + i * 25), Color.Black, 1f);
+                spriteRenderer.DrawString(resourceList[i].Item2, drawingOffset + new Vector2(270, 80 + i * 25), Color.Black, layerDepth + 0.01f);
+            }
+
+            int jobcount = 0;
+            for(int i = 0; i < mVillage.ParallelConstructions.Count; i++)
+            {
+                jobcount++;
+
+                string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[mVillage.ParallelConstructions[i].BuildingSlot].X).Name;
+                int newLevel = mVillage.Buildings[mVillage.ParallelConstructions[i].BuildingSlot].Y;
+
+                spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + newLevel, drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
+
+                //draw progress bar
+                float progress = mVillage.ParallelConstructions[i].interpolate(ticks);
+                
+                spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 250, (int)drawingOffset.Y + 420 + jobcount * 25, 102, 20), 1, Color.Black, false, layerDepth + 0.01f);
+                spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 251, (int)drawingOffset.Y + 421 + jobcount * 25, (int)(100* progress), 18), 1, Color.Green, true, layerDepth + 0.01f);
+            }
+            for (int i = 0; i < mVillage.ConstructionQueue.Count; i++)
+            {
+                jobcount++;
+
+                string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].X).Name;
+                int newLevel = mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].Y;
+
+                spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + newLevel, drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
             }
 
             for (int x = 0; x < mVillage.BuildingSlots.X; x++)

@@ -34,9 +34,9 @@ namespace strategygame_client
         /// </summary>
         /// <param name="spriteRenderer"></param>
         /// <param name="Layer"></param>
-        public void Draw(ISpriteRenderer spriteRenderer, float Layer)
+        public void Draw(ISpriteRenderer spriteRenderer, float Layer, long ticks)
         {
-            VillageWindow.Draw(spriteRenderer, Layer);
+            VillageWindow.Draw(spriteRenderer, Layer, ticks);
         }
 
         /// <summary>

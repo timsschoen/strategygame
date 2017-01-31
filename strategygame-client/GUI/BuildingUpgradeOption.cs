@@ -28,7 +28,7 @@ namespace strategygame_client.GUI
             mBuildingLevel = buildingLevel;
             mPosition.Width = 240;
             mBuildingType = buildingType;
-            mBuildButton = new Button(content, new Rectangle(position.X + 130, position.X + position.Height - 10, 80, 30), "Bauen");
+            mBuildButton = new Button(content, new Rectangle(position.X + 130, position.Y + position.Height - 40, 80, 30), "Bauen");
             mBuildButton.OnClicked += MBuildButton_OnClicked;
         }
 
@@ -67,6 +67,7 @@ namespace strategygame_client.GUI
             }
 
             spriteRenderer.DrawString(mBuildingInfo.Name, new Vector2(mPosition.X + 10, mPosition.Y + 10), Color.Black, 1f);
+            spriteRenderer.DrawString("Dauer: "+mBuildingInfo.ConstructionTimes[mBuildingLevel] + " s", new Vector2(mPosition.X + 10, mPosition.Y + 50), Color.Black, 1f);
 
             mBuildButton.Draw(offSetPosition, spriteRenderer, ticks, layerDepth);
         }

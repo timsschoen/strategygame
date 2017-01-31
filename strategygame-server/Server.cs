@@ -53,9 +53,10 @@ namespace strategygame_server
                     mGameSession.handleNetworkMessage(message);
 
                     //sort between general, lobby and game messages
-                }      
-                
-                //update lobby and game sessions          
+                }
+
+                //update lobby and game sessions  
+                mGameSession.Update();        
             }
         }        
     }
