@@ -42,7 +42,8 @@ namespace strategygame_client
             mUI = new UIManager(content, configuration.BuildingInformation, graphicsDevice, networkSender);
             mMapRenderer = new MapRenderer(content, mMap, screenWidth, screenHeight);
             mMouseHandler = new MouseHandler(onMouseClick, onSelection, content);
-            mLastUpdateTicks = DateTime.Now.Ticks;
+            DateTime now = DateTime.Now;
+            mLastUpdateTicks = (long)(now - new DateTime(1970, 1, 1)).TotalMilliseconds;
 
             this.mContent = content;
             this.mConfiguration = configuration;
@@ -58,8 +59,10 @@ namespace strategygame_client
         {
             mMouseHandler.update(mUI);
 
-            mTicks += (long)(mGameSpeed * ((long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds - mLastUpdateTicks));
-            mLastUpdateTicks = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            DateTime now = DateTime.Now;
+            mTicks += (long)((now - new DateTime(1970, 1, 1)).TotalMilliseconds) - mLastUpdateTicks;
+            //mTicks += (long)(mGameSpeed * ((long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds - mLastUpdateTicks));
+            mLastUpdateTicks = (long)((now - new DateTime(1970, 1, 1)).TotalMilliseconds);
 
             mMapRenderer.Update();
             mUI.Update(mEntities);
@@ -74,6 +77,7 @@ namespace strategygame_client
             mMouseHandler.draw(spriteRenderer, 1f);
             mMapRenderer.Draw(mMap, mEntities, spriteRenderer, 0.0f);
             mUI.Draw(spriteRenderer, 0.2f, mTicks);
+            
         }
 
         public void handleNetworkMessage(IMessage newMessage)
@@ -93,7 +97,7 @@ namespace strategygame_client
                 TickMessage TickMessage = (TickMessage)newMessage;
 
                 mTicks = TickMessage.Ticks;
-                mLastUpdateTicks = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+                //mLastUpdateTicks = (long)((DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds);
                 mGameSpeed = TickMessage.GameSpeed;
             }
         }

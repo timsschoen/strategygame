@@ -30,7 +30,8 @@ namespace strategygame_server
             this.Configuration = Configuration;
             Entities = new EntityCollection();
             VillageSystem = new VillageSystem(NetworkSender, Logger, Configuration.BuildingInformation);
-            LastUpdateTicks = (long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds;
+            DateTime now = DateTime.Now;
+            LastUpdateTicks = (long)((now - new DateTime(1970, 1, 1)).TotalMilliseconds);
             this.NetworkSender = NetworkSender;
             this.Logger = Logger;
         }
@@ -48,8 +49,9 @@ namespace strategygame_server
 
         public void Update()
         {
-            Ticks += (long)(GameSpeed * ((long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds - LastUpdateTicks));
-            LastUpdateTicks = (long)((long)(DateTime.Now - new DateTime(1970, 1, 1)).TotalMilliseconds);
+            DateTime now = DateTime.Now;
+            Ticks += (long)((now - new DateTime(1970, 1, 1)).TotalMilliseconds) - LastUpdateTicks;
+            LastUpdateTicks = (long)((now - new DateTime(1970, 1, 1)).TotalMilliseconds);
 
             VillageSystem.Update(ref Entities, Ticks);
 
