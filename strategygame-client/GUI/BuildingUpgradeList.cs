@@ -30,11 +30,11 @@ namespace strategygame_client.GUI
             }
         }
 
-        public void HandleMouseClick(Point clickPosition)
+        public void HandleMouseClick(Vector2 offSetPosition, Point clickPosition)
         {
             for (int i = 0; i < mUpgradeOptions.Count; i++)
             {
-                mUpgradeOptions[i].HandleMouseClick(clickPosition);
+                mUpgradeOptions[i].HandleMouseClick(offSetPosition, clickPosition);
             }
         }
 
@@ -57,9 +57,9 @@ namespace strategygame_client.GUI
             for (int i = 0; i < BuildableBuildings.Count; i++)
             {
                 SingleBuildingInformation info = buildingInformation.getBuildingInfo(BuildableBuildings[i]);
-                BuildingUpgradeOption upgradeOption = new BuildingUpgradeOption(mContent, new Rectangle(10, 50 + currentHeight, 240, 100), BuildableBuildings[i], buildingInformation.getBuildingInfo(BuildableBuildings[i]), 1);
+                BuildingUpgradeOption upgradeOption = new BuildingUpgradeOption(mContent, new Rectangle(10,currentHeight, 280, 100), BuildableBuildings[i], buildingInformation.getBuildingInfo(BuildableBuildings[i]), 1);
                 upgradeOption.OnBuild += UpgradeOption_OnBuild;
-                currentHeight += upgradeOption.GetHeight();
+                currentHeight += upgradeOption.GetHeight()+10;
                 mUpgradeOptions.Add(upgradeOption);
             }
         }

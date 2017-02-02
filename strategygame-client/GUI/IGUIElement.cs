@@ -9,7 +9,7 @@ namespace strategygame_client.GUI
 {
     interface IGUIElement
     {
-        void HandleMouseClick(Point clickPosition);        
+        void HandleMouseClick(Vector2 offSetPosition, Point clickPosition);        
         void Draw(Vector2 offSetPosition, ISpriteRenderer spriteRenderer, long ticks, float layerDepth);
     }
 }

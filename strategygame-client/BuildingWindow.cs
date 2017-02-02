@@ -32,11 +32,11 @@ namespace strategygame_client
         public BuildingWindow(string name, ContentManager content, int x, int y, IBuildingInformation buildingInformation, GraphicsDevice graphicsDevice) : base(name, content, x, y)
         {
             mWindowRectangle.Width = 300;
-            mWindowRectangle.Height = 300;
+            mWindowRectangle.Height = 500;
             IsOpen = false;
             mBuildingSlotTexture = content.Load<Texture2D>("UI/Windows/BuildingSlot");
             this.mBuildingInformation = buildingInformation;
-            mRenderTarget = new RenderTarget2D(graphicsDevice, 280, 500, false,
+            mRenderTarget = new RenderTarget2D(graphicsDevice, mWindowRectangle.Width, mWindowRectangle.Height-50, false,
                  graphicsDevice.PresentationParameters.BackBufferFormat,
                  DepthFormat.Depth24);
             mGraphicsDevice = graphicsDevice;
@@ -70,14 +70,12 @@ namespace strategygame_client
             {
                 //empty Building Slot
                 mName = "Leerer Gebäude-Slot";
-                mWindowRectangle.Height = 500;
                 mUpgradeList.ShowAllNewBuildings(mBuildingInformation, village);
             }
             else
             {
                 //show Building Information
                 mName = mBuildingInformation.getBuildingInfo(buildingAndLevel.X).Name;
-                mWindowRectangle.Height = 300;
                 mUpgradeList.ShowBuildingUpdate(mBuildingInformation, village, buildingAndLevel);
             }
 
@@ -105,7 +103,7 @@ namespace strategygame_client
             
             Texture2D BuildingOptions = getAllBuildingOptions(village);
 
-            spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450), Layer + 0.05f);
+            spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, mWindowRectangle.Width, mWindowRectangle.Height - 50), Layer + 0.05f);
         }
 
         /// <summary>
@@ -130,9 +128,9 @@ namespace strategygame_client
 
         public override void HandleMouseClick(Point p)
         {
-            if(new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, 300, 450).Contains(p))
+            if(new Rectangle(mWindowRectangle.X, mWindowRectangle.Y +50, mWindowRectangle.Width, mWindowRectangle.Height -50).Contains(p))
             {
-                mUpgradeList.HandleMouseClick(new Point(p.X - mWindowRectangle.X, p.Y - mWindowRectangle.Y - 50));
+                mUpgradeList.HandleMouseClick(Vector2.Zero, new Point(p.X - mWindowRectangle.X, p.Y - mWindowRectangle.Y - 50));
             }
         }
     }

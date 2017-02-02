@@ -59,7 +59,7 @@ namespace strategygame_client
 
             spriteRenderer.Draw(mBackground, mWindowRectangle, layerDepth);
             spriteRenderer.Draw(mCloseSymbol, GetCloseSymbolRectangle(), layerDepth + 0.01f);
-            spriteRenderer.DrawString(mName, new Vector2(mWindowRectangle.Left + 20, mWindowRectangle.Top + 10), Color.White, layerDepth+0.01f);
+            spriteRenderer.DrawString(mName, new Vector2(mWindowRectangle.Left + 20, mWindowRectangle.Top + 10), Color.Black, layerDepth+0.01f);
         }
 
         public virtual void Update()

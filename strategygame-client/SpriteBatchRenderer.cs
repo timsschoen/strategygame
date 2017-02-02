@@ -65,6 +65,8 @@ namespace strategygame_client
 
         public void DrawText(string text, Rectangle rectangle, Color textColor, float layerDepth)
         {
+            float fontscale = 0.8f;
+
             //split into words, maximal rectangle.width long
             string[] words = text.Split(' ');
 
@@ -74,7 +76,7 @@ namespace strategygame_client
 
             for(int i = 0; i < words.Length; i++)
             {
-                if (mFont.MeasureString(currentLine + " " + words[i]).X > rectangle.Width)
+                if (mFont.MeasureString(currentLine + " " + words[i]).X * 0.8f > rectangle.Width)
                 {
                     lines.Add(currentLine);
                     currentLine = "";
@@ -83,30 +85,13 @@ namespace strategygame_client
                 currentLine += " " + words[i];
             }
 
-            float maxWidth = 0f;
-            float height = 0f;
+            lines.Add(currentLine);
 
-            for(int i = 0; i< lines.Count; i++)
-            {
-                Vector2 lineSize = mFont.MeasureString(lines[i]);
-                maxWidth = Math.Max(maxWidth, lineSize.X);
-
-                height += lineSize.Y;
-            }
-
-            float fontScale = 1f;
-
-            if(height > rectangle.Height || maxWidth > rectangle.Width)
-            {
-                fontScale = Math.Min(maxWidth / rectangle.Width, height / rectangle.Height);
-            }
+            Vector2 lineSize = mFont.MeasureString(lines[0]);
 
             for (int i = 0; i < lines.Count; i++)
             {
-                Vector2 lineSize = mFont.MeasureString(lines[i]);
-                maxWidth = Math.Max(maxWidth, lineSize.X);
-
-                height += lineSize.Y;
+                mSpriteBatch.DrawString(mFont, lines[i], new Vector2(rectangle.X, rectangle.Y + i * fontscale * lineSize.Y), textColor, 0f, Vector2.Zero, fontscale, SpriteEffects.None, layerDepth);
             }
 
         }

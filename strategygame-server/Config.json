@@ -2,8 +2,8 @@
   "BuildingInformation": {
   "BuildingData": {
     "1": {
-      "Name": "Rathaus",
-      "Description": "Hauptgebäude",
+      "Name": "Town hall",
+      "Description": "Reduces construction times",
       "Dependencies": [      ],
       "CellType": null,
       "ConstructionResources":  [        
@@ -11,20 +11,47 @@
       {"1": "50", "2": "50"},
       {"1": "50", "2": "50"}
       ],
-	  "ConstructionTimes": [ 30, 60, 90 ],
+	  "ConstructionTimes": [ 10, 20, 30 ],
       "BuildingEffects": null
     },
     "2": {
       "Name": "Forstamt",
       "Description": "Produziert Holz",
-      "Dependencies": [   { "X": "1", "Y": "1" }   ],
+      "Dependencies": [ ],
+      "CellType": null,
+      "ConstructionResources": [
+        {
+          "1": "50",
+          "2": "50"
+        },
+        {
+          "1": "50",
+          "2": "50"
+        },
+        {
+          "1": "50",
+          "2": "50"
+        }
+      ],
+      "ConstructionTimes": [ 20, 30, 40 ],
+      "BuildingEffects": [
+        {
+          "1": "50",
+          "2": "50"
+        }
+      ]
+    },
+    "3": {
+      "Name": "Steinbruch",
+      "Description": "",
+      "Dependencies": [     ],
       "CellType": null,
       "ConstructionResources":  [        
 	  {"1": "50", "2": "50"},
       {"1": "50", "2": "50"},
       {"1": "50", "2": "50"}
       ],
-	  "ConstructionTimes": [ 30, 60, 90 ],
+	  "ConstructionTimes": [ 20, 30, 40 ],
       "BuildingEffects": [
        {"1": "50", "2": "50"} 
       ]

@@ -18,6 +18,7 @@ namespace strategygame_client.GUI
         SingleBuildingInformation mBuildingInfo;
         int mBuildingLevel;
         Rectangle mPosition;
+        ContentManager mContent;
         int mBuildingType;
         public event BuildClicked OnBuild;
 
@@ -26,10 +27,8 @@ namespace strategygame_client.GUI
             mPosition = position;
             mBuildingInfo = buildingInfo;
             mBuildingLevel = buildingLevel;
-            mPosition.Width = 240;
             mBuildingType = buildingType;
-            mBuildButton = new Button(content, new Rectangle(position.X + 130, position.Y + position.Height - 40, 80, 30), "Bauen");
-            mBuildButton.OnClicked += MBuildButton_OnClicked;
+            mContent = content;
         }
 
         private void MBuildButton_OnClicked(object sender, EventArgs e)
@@ -54,7 +53,13 @@ namespace strategygame_client.GUI
             int resourceCount = resourceList.Count;
             mPosition.Height = Math.Max(resourceCount * 15 + 70, 100);
 
-            spriteRenderer.DrawRectanglePrimitive(mPosition, 3, Color.Black, false, 1f);
+            if(mBuildButton == null)
+            {
+                mBuildButton = new Button(mContent, new Rectangle(mPosition.X + 180, mPosition.Y + mPosition.Height - 40, 80, 30), "Bauen");
+                mBuildButton.OnClicked += MBuildButton_OnClicked;
+            }
+
+            spriteRenderer.DrawRectanglePrimitive(mPosition, 2, Color.Black, false, 1f);
 
             for (int i = 0; i < resourceCount; i++)
             {
@@ -63,11 +68,14 @@ namespace strategygame_client.GUI
                 if (mVillage.Resources.GetResourceCount(resourceList[i].Item1) < resourcesToUpgrade.GetResourceCount(resourceList[i].Item1))
                     resourceColor = Color.Red;
 
-                spriteRenderer.DrawString(resourceList[i].Item2, new Vector2(mPosition.X + 130, mPosition.Y + 10 + i * 20), resourceColor, 1f);
+                spriteRenderer.DrawString(resourceList[i].Item2, new Vector2(mPosition.X + 180, mPosition.Y + 10 + i * 20), resourceColor, 1f);
             }
 
             spriteRenderer.DrawString(mBuildingInfo.Name, new Vector2(mPosition.X + 10, mPosition.Y + 10), Color.Black, 1f);
-            spriteRenderer.DrawString("Dauer: "+mBuildingInfo.ConstructionTimes[mBuildingLevel] + " s", new Vector2(mPosition.X + 10, mPosition.Y + 50), Color.Black, 1f);
+
+            spriteRenderer.DrawText(mBuildingInfo.Description, new Rectangle(mPosition.X + 8, mPosition.Y + 30, 130, 60), Color.Black, 1f);
+
+            spriteRenderer.DrawString("construction time: "+mBuildingInfo.ConstructionTimes[mBuildingLevel] + " s", new Vector2(mPosition.X + 10, mPosition.Y + 70), Color.Black, 1f);
 
             mBuildButton.Draw(offSetPosition, spriteRenderer, ticks, layerDepth);
         }
@@ -77,9 +85,9 @@ namespace strategygame_client.GUI
             this.mVillage = village;
         }
 
-        public void HandleMouseClick(Point clickPosition)
+        public void HandleMouseClick(Vector2 offSetPosition, Point clickPosition)
         {
-            mBuildButton.HandleMouseClick(clickPosition);
+            mBuildButton.HandleMouseClick(offSetPosition, clickPosition);
         }
     }
 }
