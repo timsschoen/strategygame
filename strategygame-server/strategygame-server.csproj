@@ -1,10 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{303788A1-193E-4B1C-9466-C864241E40C0}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -89,7 +87,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\strategygame-common\strategygame-common.csproj">
-      <Project>{fe86e7e5-e310-4b80-9b8b-61748657d98b}</Project>
+      <Project>{FE86E7E5-E310-4B80-9B8B-61748657D98B}</Project>
       <Name>strategygame-common</Name>
     </ProjectReference>
   </ItemGroup>
