@@ -13,9 +13,10 @@ namespace strategygame_common
 {
     public class Map
     {
-        MapCell[] Cells;
-        public int Height { get; private set; }
-        public int Width { get; private set; }
+		MapCell[][] Cells;
+		public int Height { get; }
+		public int Width { get; }
+		public bool editable { get; }
                 
         public static Map LoadFromFolder(GraphicsDevice device, string PathToFolder)
         {
@@ -40,12 +41,12 @@ namespace strategygame_common
             return map;
         }
 
-        public Map(int Height, int Width)
-        {
-            this.Height = Height;
-            this.Width = Width;
-            Cells = new MapCell[Height * Width];
-        }
+		public Map(int x, int y)
+		{
+			Cells = new MapCell[x] [y];
+			Height = y;
+			Width = x;
+		}
 
         /// <summary>
         /// Returns the mapCell at the specified coordinates, or null, if the coordinates are out of bounds
@@ -55,12 +56,26 @@ namespace strategygame_common
         /// <returns></returns>
         public MapCell getMapCellAt(int x, int y)
         {
-            if((x < 0) || (y < 0) || (y > Height-1) || (x > Width-1))
+			if((x < 0) || (y < 0) || (y > Height-1) || (x > Width-1))
             {
                 return null;
             }
-
-            return Cells[x + y * Width];
+			return Cells[x][y];
         }
+
+		public void mapComplete()
+		{
+			editable = false;
+		}
+
+		public bool addCell(int x, int y, MapCell cell)
+		{
+			if (!editable) {
+				return false;
+			}
+
+			Cells [x] [y] = cell;
+			return true;
+		}
     }
 }
