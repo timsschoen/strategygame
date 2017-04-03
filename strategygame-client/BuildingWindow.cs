@@ -64,9 +64,9 @@ namespace strategygame_client
         {
             this.mSelectedSlot = selectedSlot;
 
-            Point buildingAndLevel = village.Buildings[mSelectedSlot];
+            BuildingSlot buildingAndLevel = village.Buildings[mSelectedSlot];
 
-            if (buildingAndLevel.X == 0)
+            if (buildingAndLevel == null)
             {
                 //empty Building Slot
                 mName = "Leerer Gebäude-Slot";
@@ -75,7 +75,7 @@ namespace strategygame_client
             else
             {
                 //show Building Information
-                mName = mBuildingInformation.getBuildingInfo(buildingAndLevel.X).Name;
+                mName = mBuildingInformation.getBuildingInfo(buildingAndLevel.Type).Name;
                 mUpgradeList.ShowBuildingUpdate(mBuildingInformation, village, buildingAndLevel);
             }
 

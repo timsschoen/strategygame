@@ -95,14 +95,20 @@ namespace strategygame_common
                     JsonSerializerSettings settings = new JsonSerializerSettings();
                     settings.TypeNameHandling = TypeNameHandling.Objects;
                     string Message = JsonConvert.SerializeObject(toSend, settings);
-                    if(toSend.ClientID == -1)                    
+                    NetOutgoingMessage outMsg = mLidgrenServer.CreateMessage(Message);
+
+                    if (toSend.ClientID == -1)
+                    {
                         //Send to all
                         foreach (KeyValuePair<int, Client> KVP in mConnectedClients)
                         {
-                            mLidgrenServer.SendMessage(mLidgrenServer.CreateMessage(Message), KVP.Value.Connection, NetDeliveryMethod.ReliableOrdered);
-                        }                    
+                            mLidgrenServer.SendMessage(outMsg, KVP.Value.Connection, NetDeliveryMethod.ReliableOrdered);
+                        }
+                    }
                     else
-                        mLidgrenServer.SendMessage(mLidgrenServer.CreateMessage(Message), mConnectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
+                    {
+                        mLidgrenServer.SendMessage(outMsg, mConnectedClients[toSend.ClientID].Connection, NetDeliveryMethod.ReliableOrdered);
+                    }
                 }
             }
         }        

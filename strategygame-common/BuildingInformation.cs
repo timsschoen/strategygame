@@ -17,7 +17,7 @@ namespace strategygame_common
             BuildingData = new Dictionary<int, SingleBuildingInformation>();
         }
 
-        private bool Fulfills(List<Point> Requirements, Point[] Current)
+        private bool Fulfills(List<Point> Requirements, BuildingSlot[] Current)
         {
             for(int i = 0; i < Requirements.Count; i++)
             {
@@ -30,7 +30,7 @@ namespace strategygame_common
                     if (Current[j] == null)
                         continue;
 
-                    if (Current[j].X == BuildingType && Current[j].Y >= Requirements[i].Y)
+                    if (Current[j].Type == BuildingType && Current[j].Level >= Requirements[i].Y)
                     {
                         Fulfilled = true;
                         break;
@@ -44,7 +44,7 @@ namespace strategygame_common
             return true;
         }
         
-        public bool canBuild(int BuildingType, int Level, Point[] BuildingsInVillage, MapCellType MapCellType, IResources Resources)
+        public bool canBuild(int BuildingType, int Level, BuildingSlot[] BuildingsInVillage, MapCellType MapCellType, IResources Resources)
         {
             //Building Exists
             if (!BuildingData.ContainsKey(BuildingType))
@@ -73,7 +73,7 @@ namespace strategygame_common
             
         }
 
-        public List<int> BuildableBuildings(Point[] BuildingsInVillage, MapCellType MapCellType)
+        public List<int> BuildableBuildings(BuildingSlot[] BuildingsInVillage, MapCellType MapCellType)
         {
             List<int> Result = new List<int>();
 
@@ -135,16 +135,39 @@ namespace strategygame_common
         [JsonConverter(typeof(ConcreteListJsonConverter<IResources, Resources>))]
         public List<IResources> ConstructionResources;
 
-        [JsonConverter(typeof(ConcreteListJsonConverter<IResources, Resources>))]
-        public List<IResources> BuildingEffects;
+
+        [JsonConverter(typeof(EffectDeserializer))]
+        public List<IBuildingEffect>[] BuildingEffects;
     }
 
     public interface IBuildingInformation
     {
-        bool canBuild(int BuildingType, int Level, Point[] BuildingsInVillage, MapCellType MapCellType, IResources Resources);
-        List<int> BuildableBuildings(Point[] BuildingsInVillage, MapCellType MapCellType);
+        bool canBuild(int BuildingType, int Level, BuildingSlot[] BuildingsInVillage, MapCellType MapCellType, IResources Resources);
+        List<int> BuildableBuildings(BuildingSlot[] BuildingsInVillage, MapCellType MapCellType);
         IResources getResources(int BuildingType, int Level);
         List<Point> getDependencies(int BuildingType);
         SingleBuildingInformation getBuildingInfo(int BuildingType);
     }    
+
+    public interface IBuildingEffect
+    {
+
+    }
+    
+    public class ProductionEffect : IBuildingEffect
+    {
+        [JsonConverter(typeof(ConcreteJsonConverter<Resources>))]
+        public IResources In;
+
+        [JsonConverter(typeof(ConcreteJsonConverter<Resources>))]
+        public IResources Out;
+
+        public int Length;
+    }
+
+    public class KeyValueEffect : IBuildingEffect
+    {
+        public string Key;
+        public float Value;
+    }
 }
