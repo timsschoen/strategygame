@@ -70,7 +70,7 @@ namespace strategygame_client.GUI
                 OnBuildClicked(buildingType, buildingLevel);
         }
 
-        public void ShowBuildingUpdate(IBuildingInformation buildingInformation, IVillage village, Point currentBuilding)
+        public void ShowBuildingUpdate(IBuildingInformation buildingInformation, IVillage village, BuildingSlot currentBuilding)
         {
             mUpgradeOptions.Clear();
         }        

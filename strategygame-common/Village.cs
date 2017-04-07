@@ -14,9 +14,10 @@ namespace strategygame_common
 
         public Vector2 Position { get; set; }
         public bool isSelected { get; set; } = false;
-        public List<ConstructionProcess> ParallelConstructions { get; set; }
+        public List<Process> Processes { get; set; }
         public Queue<QueuedJob> ConstructionQueue { get; set; }
-        public Point[] Buildings { get; set; }
+        public BuildingSlot[] Buildings { get; set; }
+        public Dictionary<string, float> Attributes { get; set; }
         public float Hitboxsize { get; set; }
         public Point BuildingSlots { get; set; }
         public MapCellType CellType { get; set; }
@@ -34,20 +35,28 @@ namespace strategygame_common
             this.CellType = CellType;
             this.Resources = Resources;
             this.ConstructionQueue = new Queue<QueuedJob>();
-            this.ParallelConstructions = new List<ConstructionProcess>();
-            Buildings = new Point[BuildingSlots.X * BuildingSlots.Y];
+            this.Processes = new List<Process>();
+            Buildings = new BuildingSlot[BuildingSlots.X * BuildingSlots.Y];
         }        
     }
 
     public interface IVillage : IEntity, IResourceStore, ISelectableMapComponent
     {
-        Point[] Buildings { get; set; }
-        List<ConstructionProcess> ParallelConstructions { get; set; }
+        BuildingSlot[] Buildings { get; set; }
+        List<Process> Processes { get; set; }
         Queue<QueuedJob> ConstructionQueue { get; set; }
+        Dictionary<string, float> Attributes { get; set; }
 
         //X * Y Grid for buildings
         Point BuildingSlots { get; set; }
         MapCellType CellType { get; set; }
+    }
+
+    public class BuildingSlot
+    {
+        public int Level;
+        public int Type;
+        public bool Active;
     }
 
     public class BuildingMessage : BaseMessage

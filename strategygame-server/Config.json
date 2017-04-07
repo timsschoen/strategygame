@@ -34,11 +34,24 @@
         }
       ],
       "ConstructionTimes": [ 20, 30, 40 ],
-      "BuildingEffects": [
-        {
-          "1": "50",
-          "2": "50"
-        }
+      "BuildingEffects": [        
+          [
+            {
+              "Type": "Production",
+              "Length": "200",
+              "In": {
+                "1": "50"
+              },
+              "Out": {
+                "3": "20"
+              }
+            },
+            {
+              "Type": "KeyValue",
+              "Key": "BuildingTime",
+              "Value":  "0.5"
+            }
+          ]        
       ]
     },
     "3": {
@@ -52,9 +65,7 @@
       {"1": "50", "2": "50"}
       ],
 	  "ConstructionTimes": [ 20, 30, 40 ],
-      "BuildingEffects": [
-       {"1": "50", "2": "50"} 
-      ]
+      "BuildingEffects": null
     }
     }
   }

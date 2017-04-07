@@ -6,12 +6,38 @@ using System.Threading.Tasks;
 
 namespace strategygame_common
 {
-    public class ConstructionProcess
+    public class ConstructionProcess : Process
+    {
+        public int BuildingSlot;
+        public bool isUpgrading;
+    }
+
+    public class ProductionProcess : Process
+    {
+        public bool Repeating;
+        public int OwnerBuildingSlot;
+        public IResources In;
+        public IResources Out;
+        public int Length;
+
+        public static ProductionProcess FromProduction(ProductionEffect production, long currentTicks, int buildingSlot)
+        {
+            ProductionProcess process = new ProductionProcess();
+            process.Start = currentTicks;
+            process.In = production.In;
+            process.Out = production.Out;
+            process.Length = production.Length;
+            process.OwnerBuildingSlot = buildingSlot;
+            process.Repeating = true;
+
+            return process;
+        }
+    }
+
+    public class Process
     {
         public long Start;
         public long End;
-        public int BuildingSlot;
-        public bool isUpgrading;
 
         public float interpolate(long ticks)
         {

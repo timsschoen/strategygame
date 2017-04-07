@@ -110,27 +110,33 @@ namespace strategygame_client
             }
 
             int jobcount = 0;
-            for(int i = 0; i < mVillage.ParallelConstructions.Count; i++)
+            for(int i = 0; i < mVillage.Processes.Count; i++)
             {
-                jobcount++;
+                if (mVillage.Processes[i] is ConstructionProcess)
+                {
+                    jobcount++;
 
-                string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[mVillage.ParallelConstructions[i].BuildingSlot].X).Name;
-                int newLevel = mVillage.Buildings[mVillage.ParallelConstructions[i].BuildingSlot].Y;
+                    int Slot = (mVillage.Processes[i] as ConstructionProcess).BuildingSlot;
 
-                spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + (newLevel+1), drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
+                    string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[Slot].Type).Name;
+                    int newLevel = mVillage.Buildings[Slot].Level;
 
-                //draw progress bar
-                float progress = mVillage.ParallelConstructions[i].interpolate(ticks);
-                
-                spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 280, (int)drawingOffset.Y + 420 + jobcount * 25, 102, 20), 1, Color.Black, false, layerDepth + 0.01f);
-                spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 281, (int)drawingOffset.Y + 421 + jobcount * 25, (int)(100* progress), 18), 1, Color.Green, true, layerDepth + 0.01f);
+                    spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + (newLevel + 1), drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
+
+                    //draw progress bar
+                    float progress = mVillage.Processes[i].interpolate(ticks);
+
+                    spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 280, (int)drawingOffset.Y + 420 + jobcount * 25, 102, 20), 1, Color.Black, false, layerDepth + 0.01f);
+                    spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 281, (int)drawingOffset.Y + 421 + jobcount * 25, (int)(100 * progress), 18), 1, Color.Green, true, layerDepth + 0.01f);
+
+                }
             }
             for (int i = 0; i < mVillage.ConstructionQueue.Count; i++)
             {
                 jobcount++;
 
-                string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].X).Name;
-                int newLevel = mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].Y;
+                string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].Type).Name;
+                int newLevel = mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].Level;
 
                 spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + newLevel, drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
             }

@@ -20,16 +20,10 @@ namespace strategygame_common
         public Resources ResourceFactors;
         public MapCellType CellType;
 
-        public MapCell(Color MapColor)
+		public MapCell(MapCellType type, Resources resources)
         {
-            if (MapColor.R > 200)
-                CellType = MapCellType.Flatland;
-            else if (MapColor.R > 150)
-                CellType = MapCellType.Hills;
-            else if (MapColor.R > 100)
-                CellType = MapCellType.Mountain;
-            else
-                CellType = MapCellType.Water;
+			CellType = type;
+			ResourceFactors = resources;
         }
         
     }

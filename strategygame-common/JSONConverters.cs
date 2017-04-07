@@ -55,6 +55,50 @@ namespace strategygame_common
         }
     }
 
+    public class EffectDeserializer : JsonConverter
+    {
+        public override bool CanConvert(Type objectType)
+        {
+            return true;
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.Null)
+                return null;
+
+            JArray ArrayOfListsJSON = JArray.Load(reader);
+            List<IBuildingEffect>[] ArrayOfLists = new List<IBuildingEffect>[ArrayOfListsJSON.Count];
+            
+            for(int i = 0; i < ArrayOfListsJSON.Count; i++)
+            {
+                ArrayOfLists[i] = new List<IBuildingEffect>();
+                JArray effectList = (JArray)ArrayOfListsJSON[i];
+
+                for(int j = 0; j < effectList.Count;j++)
+                {
+                    JObject effect = (JObject)effectList[j];
+
+                    if (effect["Type"].ToString() == "Production")
+                    {
+                        ArrayOfLists[i].Add(effect.ToObject<ProductionEffect>());
+                    }
+                    else if (effect["Type"].ToString() == "KeyValue")
+                    {
+                        ArrayOfLists[i].Add(effect.ToObject<KeyValueEffect>());
+                    }
+                }
+            }
+
+            return ArrayOfLists;
+        }
+
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            //we dont need to write
+        }
+    }
+
     public class ResourceConverter : JsonConverter
     {
         public override bool CanConvert(Type objectType)
