@@ -21,7 +21,7 @@ namespace strategygame_client
 
 		public void AddListener(IStringMessageListener listener)
 		{
-			ListenerQueue.AddAfter (new LinkedListNode<IStringMessageListener> (listener));
+			ListenerQueue.AddLast (new LinkedListNode<IStringMessageListener> (listener));
 		}
 
 		public void RemoveListener(IStringMessageListener listener)
@@ -32,7 +32,7 @@ namespace strategygame_client
 		private void notifyMessage(IStringOutput message)
 		{
 			foreach(IStringMessageListener listener in ListenerQueue){
-				if (listener.type.Contains(message.Type)) {
+				if (listener.type == message.Type) {
 					listener.Notify (message);
 				}
 			}
