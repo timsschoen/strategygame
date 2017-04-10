@@ -20,12 +20,16 @@ namespace strategygame_common
         public Resources ResourceFactors;
         public MapCellType CellType;
 
-		public MapCell(MapCellType type, Resources resources)
+		public MapCell(MapCellType type)
         {
 			CellType = type;
-			ResourceFactors = resources;
         }
-        
+
+        public MapCell(MapCellType type, Resources Resources)
+        {
+            CellType = type;
+        }
+
     }
     
     public enum MapCellType

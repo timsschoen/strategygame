@@ -13,10 +13,10 @@ namespace strategygame_common
 {
     public class Map
     {
-		MapCell[][] Cells;
+		MapCell[,] Cells;
 		public int Height { get; }
 		public int Width { get; }
-		public bool editable { get; }
+		public bool editable { get; private set; }
                 
         public static Map LoadFromFolder(GraphicsDevice device, string PathToFolder)
         {
@@ -33,8 +33,20 @@ namespace strategygame_common
             {
                 for(int y = 0; y < map.Width; y++)
                 {
-                    MapCell mapCell = new MapCell(ColorArray[x+y*map.Width]);
-                    map.Cells[x + y * map.Width] = mapCell;
+                    Color MapColor = ColorArray[x + y * map.Width];
+                    MapCellType CellType = MapCellType.Water;
+
+                    if (MapColor.R > 200)
+                        CellType = MapCellType.Flatland;
+                    else if (MapColor.R > 150)
+                        CellType = MapCellType.Hills;
+                    else if (MapColor.R > 100)
+                        CellType = MapCellType.Mountain;
+                    else
+                        CellType = MapCellType.Water;
+
+                    MapCell mapCell = new MapCell(CellType);
+                    map.Cells[x,y] = mapCell;
                 }
             }
 
@@ -43,7 +55,7 @@ namespace strategygame_common
 
 		public Map(int x, int y)
 		{
-			Cells = new MapCell[x] [y];
+			Cells = new MapCell[x,y];
 			Height = y;
 			Width = x;
 		}
@@ -60,7 +72,7 @@ namespace strategygame_common
             {
                 return null;
             }
-			return Cells[x][y];
+			return Cells[x,y];
         }
 
 		public void mapComplete()
@@ -68,13 +80,13 @@ namespace strategygame_common
 			editable = false;
 		}
 
-		public bool addCell(int x, int y, MapCell cell)
+		public bool setCell(int x, int y, MapCell cell)
 		{
 			if (!editable) {
 				return false;
 			}
 
-			Cells [x] [y] = cell;
+			Cells [x,y] = cell;
 			return true;
 		}
     }

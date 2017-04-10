@@ -21,8 +21,8 @@ namespace strategygame_server
 					for (int k = 0; k < 5; k++) {
 						res.SetResourceCount (k, random.Next (1000));
 					}
-					MapCell newCell = new MapCell (random.Next (10), res);
-					map.addCell (i, j, newCell);
+					MapCell newCell = new MapCell ((MapCellType)random.Next(10), res);
+					map.setCell (i, j, newCell);
 				}
 			}
 		}
