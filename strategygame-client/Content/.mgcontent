@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <SourceFileCollection xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <Profile>Reach</Profile>
-  <Platform>DesktopGL</Platform>
+  <Platform>Windows</Platform>
   <Config />
   <SourceFiles>
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/Map/BaseTextures/Flatland.png</File>
@@ -14,6 +14,7 @@
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Mouse/Cursor.png</File>
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Mouse/SelectedBG.png</File>
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Windows/BuildingSlot.png</File>
+    <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Windows/Rathaus.png</File>
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Windows/WindowBG.png</File>
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Windows/WindowX.png</File>
     <File>C:/Users/Tim/git/strategygame/strategygame-client/Content/Default.spritefont</File>

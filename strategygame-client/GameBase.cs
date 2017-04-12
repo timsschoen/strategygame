@@ -36,7 +36,7 @@ namespace strategygame_client
             graphics = new GraphicsDeviceManager(this);
             graphics.PreferredBackBufferHeight = 1000;
             graphics.PreferredBackBufferWidth = 1500;
-            Content.RootDirectory = "Content";
+            Content.RootDirectory = "Content/Content";
             Client = new NetworkClient(new ConsoleLogger());
             Thread.Sleep(200); 
             Client.Connect("127.0.0.1", 6679);            
@@ -75,7 +75,7 @@ namespace strategygame_client
         protected override void LoadContent()
         {
             // Create a new SpriteBatch, which can be used to draw textures.
-            spriteRenderer = new SpriteBatchRenderer(new SpriteBatch(GraphicsDevice), Content.Load<SpriteFont>("Default"));    
+            spriteRenderer = new SpriteBatchRenderer(new SpriteBatch(GraphicsDevice), Content.Load<SpriteFont>("Default"));              
                     
         }
 
