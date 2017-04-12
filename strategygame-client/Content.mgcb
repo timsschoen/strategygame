@@ -80,15 +80,7 @@
 /build:Content/Map/Entities/Village.png
 
 #begin Content/Maps/1/Map.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:TextureFormat=Color
-/build:Content/Maps/1/Map.png
+/copy:Content/Maps/1/Map.png
 
 #begin Content/UI/Mouse/Cursor.png
 /importer:TextureImporter

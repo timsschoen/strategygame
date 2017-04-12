@@ -165,7 +165,8 @@ namespace strategygame_server
                 queuedJob.isUpgrading = true;
 
                 village.ConstructionQueue.Enqueue(queuedJob);
-                
+
+                village.Buildings[Msg.BuildingPosition] = new BuildingSlot();
                 village.Buildings[Msg.BuildingPosition].Type = Msg.BuildingType;
 
                 village.Resources.Subtract(mBuildingInformation.getResources(Msg.BuildingType, Msg.Level));
