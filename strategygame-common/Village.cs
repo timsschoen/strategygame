@@ -14,7 +14,8 @@ namespace strategygame_common
 
         public Vector2 Position { get; set; }
         public bool isSelected { get; set; } = false;
-        public List<Process> Processes { get; set; }
+        public List<ConstructionProcess> ConstructionProcesses { get; set; }
+        public List<ProductionProcess> ProductionProcesses { get; set; }
         public Queue<QueuedJob> ConstructionQueue { get; set; }
         public BuildingSlot[] Buildings { get; set; }
         public Dictionary<string, float> Attributes { get; set; }
@@ -35,15 +36,18 @@ namespace strategygame_common
             this.CellType = CellType;
             this.Resources = Resources;
             this.ConstructionQueue = new Queue<QueuedJob>();
-            this.Processes = new List<Process>();
+            this.ProductionProcesses = new List<ProductionProcess>();
+            ConstructionProcesses = new List<ConstructionProcess>();
             Buildings = new BuildingSlot[BuildingSlots.X * BuildingSlots.Y];
+            Attributes = new Dictionary<string, float>();
         }        
     }
 
     public interface IVillage : IEntity, IResourceStore, ISelectableMapComponent
     {
         BuildingSlot[] Buildings { get; set; }
-        List<Process> Processes { get; set; }
+        List<ProductionProcess> ProductionProcesses { get; set; }
+        List<ConstructionProcess> ConstructionProcesses { get; set; }
         Queue<QueuedJob> ConstructionQueue { get; set; }
         Dictionary<string, float> Attributes { get; set; }
 
@@ -56,7 +60,7 @@ namespace strategygame_common
     {
         public int Level;
         public int Type;
-        public bool Active;
+        public bool Active = true;
     }
 
     public class BuildingMessage : BaseMessage

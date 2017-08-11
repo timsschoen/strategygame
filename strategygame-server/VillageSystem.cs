@@ -33,59 +33,82 @@ namespace strategygame_server
 
                     List<int> indicesToRemove = new List<int>();
 
-                    for(int i = 0; i < village.Processes.Count; i++)
+                    for(int i = 0; i < village.ConstructionProcesses.Count; i++)
                     {
-                        if(village.Processes[i].End <= Ticks)
+                        if (village.ConstructionProcesses[i].End <= Ticks)
                         {
                             //process over
                             indicesToRemove.Add(i);
 
-                            if (village.Processes[i] is ConstructionProcess)
+                            ConstructionProcess constructionProcess = village.ConstructionProcesses[i];
+
+                            if (constructionProcess.isUpgrading)
                             {
-                                ConstructionProcess constructionProcess = village.Processes[i] as ConstructionProcess;
+                                village.Buildings[constructionProcess.BuildingSlot].Level++;
 
-                                if (constructionProcess.isUpgrading)
+                            }
+                            else
+                            {
+                                village.Buildings[constructionProcess.BuildingSlot].Level--;
+                            }
+
+                            List<int> indicesToRemoveProduction = new List<int>();
+                            for(int j = 0; j < village.ProductionProcesses.Count; j++)
+                            {
+                                if (village.ProductionProcesses[j].OwnerBuildingSlot == constructionProcess.BuildingSlot)
+                                    indicesToRemove.Add(j);
+                            }
+
+                            foreach (int index in indicesToRemoveProduction)
+                                village.ProductionProcesses.RemoveAt(index);
+
+                            BuildingSlot building = village.Buildings[constructionProcess.BuildingSlot];
+
+                            if (building.Active)
+                            {
+                                List<IBuildingEffect> BuildingEffects = mBuildingInformation.getBuildingInfo(building.Type).BuildingEffects[building.Level - 1];
+
+                                if (BuildingEffects != null)
                                 {
-                                    village.Buildings[constructionProcess.BuildingSlot].Level++;
-                                    
-                                }
-                                else
-                                {
-                                    village.Buildings[constructionProcess.BuildingSlot].Level--;
-                                }
-
-                                BuildingSlot building = village.Buildings[constructionProcess.BuildingSlot];
-
-                                if(building.Active)
-                                {
-                                    List<IBuildingEffect> BuildingEffects = mBuildingInformation.getBuildingInfo(building.Type).BuildingEffects[building.Level];
-
-                                    if (BuildingEffects != null)
+                                    foreach (IBuildingEffect effect in BuildingEffects)
                                     {
-                                        foreach (IBuildingEffect effect in BuildingEffects)
+                                        if (effect is ProductionEffect)
                                         {
-                                            if (effect is ProductionEffect)
-                                            {
-                                                ProductionProcess process = ProductionProcess.FromProduction(effect as ProductionEffect, Ticks, constructionProcess.BuildingSlot);
-                                                village.Processes.Add(process);
-                                            }
-                                            else if (effect is KeyValueEffect)
-                                            {
-                                                KeyValueEffect effectAsKVE = effect as KeyValueEffect;
-                                                if (!village.Attributes.ContainsKey(effectAsKVE.Key))
-                                                    village.Attributes.Add(effectAsKVE.Key, effectAsKVE.Value);
+                                            ProductionProcess process = ProductionProcess.FromProduction(effect as ProductionEffect, Ticks, constructionProcess.BuildingSlot);
+                                            village.ProductionProcesses.Add(process);
+                                        }
+                                        else if (effect is KeyValueEffect)
+                                        {
+                                            KeyValueEffect effectAsKVE = effect as KeyValueEffect;
+                                            if (!village.Attributes.ContainsKey(effectAsKVE.Key))
+                                                village.Attributes.Add(effectAsKVE.Key, effectAsKVE.Value);
 
-                                                village.Attributes[effectAsKVE.Key] = effectAsKVE.Value;
+                                            village.Attributes[effectAsKVE.Key] = effectAsKVE.Value;
 
-                                            }
                                         }
                                     }
                                 }
-                                
                             }
-                            else if(village.Processes[i] is ProductionProcess)
+                        }
+                    }
+
+                    for (int i = 0; i < indicesToRemove.Count; i++)
+                    {
+                        village.ConstructionProcesses.RemoveAt(indicesToRemove[i]);
+                    }
+
+                    indicesToRemove.Clear();
+
+                    for (int i = 0; i < village.ProductionProcesses.Count; i++)
+                    {
+                        if(village.ProductionProcesses[i].End <= Ticks)
+                        {
+                            //process over
+                            indicesToRemove.Add(i);
+                            
+                            if(village.ProductionProcesses[i] is ProductionProcess)
                             {
-                                ProductionProcess productionProcess = village.Processes[i] as ProductionProcess;
+                                ProductionProcess productionProcess = village.ProductionProcesses[i] as ProductionProcess;
 
                                 village.Resources.Add(productionProcess.Out);
 
@@ -98,7 +121,7 @@ namespace strategygame_server
                                             village.Resources.Subtract(productionProcess.In);
                                             productionProcess.End = Ticks + productionProcess.Length;
                                             productionProcess.Start = Ticks;
-                                            village.Processes.Add(productionProcess);
+                                            village.ProductionProcesses.Add(productionProcess);
                                         }
                                     }
                                     else
@@ -115,11 +138,11 @@ namespace strategygame_server
 
                     for(int i = 0; i < indicesToRemove.Count; i++)
                     {
-                        village.Processes.RemoveAt(indicesToRemove[i]);
+                        village.ProductionProcesses.RemoveAt(indicesToRemove[i]);
                     }
 
                     //todo make count of parallel constructions configurable
-                    if(village.Processes.Count < 1 && village.ConstructionQueue.Count > 0)
+                    if(village.ConstructionProcesses.Count < 1 && village.ConstructionQueue.Count > 0)
                     {
                         QueuedJob job = village.ConstructionQueue.Dequeue();
 
@@ -131,7 +154,7 @@ namespace strategygame_server
                         process.Start = Ticks;
                         process.End = Ticks + job.Length;
 
-                        village.Processes.Add(process);
+                        village.ConstructionProcesses.Add(process);
 
                         updateNeeded = true;
                     }
@@ -163,11 +186,14 @@ namespace strategygame_server
                 queuedJob.BuildingSlot = Msg.BuildingPosition;
                 queuedJob.Length = mBuildingInformation.getBuildingInfo(Msg.BuildingType).ConstructionTimes[Msg.Level] * 1000;
                 queuedJob.isUpgrading = true;
-
+               
                 village.ConstructionQueue.Enqueue(queuedJob);
 
-                village.Buildings[Msg.BuildingPosition] = new BuildingSlot();
-                village.Buildings[Msg.BuildingPosition].Type = Msg.BuildingType;
+                if(village.Buildings[Msg.BuildingPosition] == null)
+                {
+                    village.Buildings[Msg.BuildingPosition] = new BuildingSlot();
+                    village.Buildings[Msg.BuildingPosition].Type = Msg.BuildingType;
+                }
 
                 village.Resources.Subtract(mBuildingInformation.getResources(Msg.BuildingType, Msg.Level));
                 

@@ -46,6 +46,19 @@ namespace strategygame_common
         
         public bool canBuild(int BuildingType, int Level, BuildingSlot[] BuildingsInVillage, MapCellType MapCellType, IResources Resources)
         {
+            if (!couldBuild(BuildingType, Level, BuildingsInVillage, MapCellType))
+                return false;
+
+            IResources NeededResources = getResources(BuildingType, Level);
+
+            if (NeededResources == null || !Resources.ContainsMoreThan(NeededResources))
+                return false;
+
+            return true;            
+        }
+
+        public bool couldBuild(int BuildingType, int Level, BuildingSlot[] BuildingsInVillage, MapCellType MapCellType)
+        {
             //Building Exists
             if (!BuildingData.ContainsKey(BuildingType))
                 return false;
@@ -63,14 +76,8 @@ namespace strategygame_common
             //Dependencies
             if (!Fulfills(info.Dependencies, BuildingsInVillage))
                 return false;
-
-            IResources NeededResources = getResources(BuildingType, Level);
-
-            if (NeededResources == null || !Resources.ContainsMoreThan(NeededResources))
-                return false;
-
+                        
             return true;
-            
         }
 
         public List<int> BuildableBuildings(BuildingSlot[] BuildingsInVillage, MapCellType MapCellType)
@@ -143,6 +150,7 @@ namespace strategygame_common
     public interface IBuildingInformation
     {
         bool canBuild(int BuildingType, int Level, BuildingSlot[] BuildingsInVillage, MapCellType MapCellType, IResources Resources);
+        bool couldBuild(int BuildingType, int Level, BuildingSlot[] BuildingsInVillage, MapCellType MapCellType);
         List<int> BuildableBuildings(BuildingSlot[] BuildingsInVillage, MapCellType MapCellType);
         IResources getResources(int BuildingType, int Level);
         List<Point> getDependencies(int BuildingType);

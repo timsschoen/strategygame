@@ -88,7 +88,7 @@ namespace strategygame_client
         /// <param name="village"></param>
         /// <param name="spriteRenderer"></param>
         /// <param name="Layer"></param>
-        public void Draw(IVillage village, ISpriteRenderer spriteRenderer, float Layer)
+        public void Draw(IVillage village, ISpriteRenderer spriteRenderer, float Layer, long Ticks)
         {
             base.Draw(spriteRenderer, Layer);
 
@@ -103,7 +103,27 @@ namespace strategygame_client
             
             Texture2D BuildingOptions = getAllBuildingOptions(village);
 
-            spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, mWindowRectangle.Width, mWindowRectangle.Height - 50), Layer + 0.05f);
+            BuildingSlot buildingSlot = village.Buildings[mSelectedSlot];
+            
+            if(buildingSlot == null)
+            {
+                spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, mWindowRectangle.Width, mWindowRectangle.Height - 50), Layer + 0.05f);
+            }
+            else
+            {
+                SingleBuildingInformation currentBuilding = mBuildingInformation.getBuildingInfo(buildingSlot.Type);
+                spriteRenderer.DrawText(currentBuilding.Description, new Rectangle(mWindowRectangle.X+50, mWindowRectangle.Y + 50, mWindowRectangle.Width, mWindowRectangle.Y + 200), Color.Black, Layer + 0.05f);
+                spriteRenderer.Draw(BuildingOptions, new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 270, mWindowRectangle.Width, mWindowRectangle.Height - 50), Layer + 0.05f);
+
+                if (village.ProductionProcesses.Any(a => a.OwnerBuildingSlot == mSelectedSlot))
+                {
+                    //draw progress bar
+                    float progress = village.ProductionProcesses.First(a => a.OwnerBuildingSlot == mSelectedSlot).interpolate(Ticks);
+
+                    spriteRenderer.DrawRectanglePrimitive(new Rectangle(mWindowRectangle.X + 100, mWindowRectangle.Y + 220, 102, 20), 1, Color.Black, false, Layer + 0.05f);
+                    spriteRenderer.DrawRectanglePrimitive(new Rectangle(mWindowRectangle.X + 101, mWindowRectangle.Y + 221, (int)(100 * progress), 18), 1, Color.Green, true, Layer + 0.05f);
+                }                
+            }
         }
 
         /// <summary>
@@ -126,11 +146,23 @@ namespace strategygame_client
             return mRenderTarget;
         }
 
-        public override void HandleMouseClick(Point p)
+        public void HandleMouseClick(IVillage village, Point p)
         {
-            if(new Rectangle(mWindowRectangle.X, mWindowRectangle.Y +50, mWindowRectangle.Width, mWindowRectangle.Height -50).Contains(p))
+            BuildingSlot buildingSlot = village.Buildings[mSelectedSlot];
+
+            if (buildingSlot == null)
             {
-                mUpgradeList.HandleMouseClick(Vector2.Zero, new Point(p.X - mWindowRectangle.X, p.Y - mWindowRectangle.Y - 50));
+                if (new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 50, mWindowRectangle.Width, mWindowRectangle.Height - 50).Contains(p))
+                {
+                    mUpgradeList.HandleMouseClick(Vector2.Zero, new Point(p.X - mWindowRectangle.X, p.Y - mWindowRectangle.Y - 50));
+                }
+            }
+            else
+            {
+                if (new Rectangle(mWindowRectangle.X, mWindowRectangle.Y + 270, mWindowRectangle.Width, mWindowRectangle.Height - 50).Contains(p))
+                {
+                    mUpgradeList.HandleMouseClick(Vector2.Zero, new Point(p.X - mWindowRectangle.X, p.Y - mWindowRectangle.Y - 270));
+                }
             }
         }
     }

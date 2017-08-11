@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <SourceFile>C:/Users/Tim/git/strategygame/strategygame-client/Content/UI/Mouse/Cursor.png</SourceFile>
-  <SourceTime>2017-01-24T22:37:15.9110218+01:00</SourceTime>
+  <SourceTime>2017-01-16T18:29:03.5221062+01:00</SourceTime>
   <DestFile>C:/Users/Tim/git/strategygame/strategygame-client/bin/WindowsGL/Debug/Content/Content/UI/Mouse/Cursor.xnb</DestFile>
-  <DestTime>2017-04-12T21:41:08.9196867+02:00</DestTime>
+  <DestTime>2017-04-22T19:33:55.7279757+02:00</DestTime>
   <Importer>TextureImporter</Importer>
-  <ImporterTime>2015-04-29T19:14:44+02:00</ImporterTime>
+  <ImporterTime>2016-03-30T08:36:08+02:00</ImporterTime>
   <Processor>TextureProcessor</Processor>
-  <ProcessorTime>2015-04-29T19:14:44+02:00</ProcessorTime>
+  <ProcessorTime>2016-03-30T08:36:08+02:00</ProcessorTime>
   <Parameters>
     <Key>ColorKeyColor</Key>
     <Value>255,0,255,255</Value>

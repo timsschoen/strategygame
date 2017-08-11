@@ -26,7 +26,8 @@ namespace strategygame_common
             process.Start = currentTicks;
             process.In = production.In;
             process.Out = production.Out;
-            process.Length = production.Length;
+            process.Length = production.Length*1000;
+            process.End = process.Start + process.Length;
             process.OwnerBuildingSlot = buildingSlot;
             process.Repeating = true;
 

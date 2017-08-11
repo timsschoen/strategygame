@@ -97,7 +97,7 @@ namespace strategygame_client
             this.mName = mVillage.Name;
 
             mBuildingWindow.SetWindowPosition(mWindowRectangle.Right + 5, mWindowRectangle.Y);
-            mBuildingWindow.Draw(mVillage, spriteRenderer, layerDepth);
+            mBuildingWindow.Draw(mVillage, spriteRenderer, layerDepth, ticks);
 
             Vector2 drawingOffset = new Vector2(mWindowRectangle.X, mWindowRectangle.Y);
 
@@ -110,27 +110,24 @@ namespace strategygame_client
             }
 
             int jobcount = 0;
-            for(int i = 0; i < mVillage.Processes.Count; i++)
-            {
-                if (mVillage.Processes[i] is ConstructionProcess)
-                {
-                    jobcount++;
+            for(int i = 0; i < mVillage.ConstructionProcesses.Count; i++)
+            {                
+                jobcount++;
 
-                    int Slot = (mVillage.Processes[i] as ConstructionProcess).BuildingSlot;
+                int Slot = mVillage.ConstructionProcesses[i].BuildingSlot;
 
-                    string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[Slot].Type).Name;
-                    int newLevel = mVillage.Buildings[Slot].Level;
+                string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[Slot].Type).Name;
+                int newLevel = mVillage.Buildings[Slot].Level;
 
-                    spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + (newLevel + 1), drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
+                spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + (newLevel + 1), drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
 
-                    //draw progress bar
-                    float progress = mVillage.Processes[i].interpolate(ticks);
+                //draw progress bar
+                float progress = mVillage.ConstructionProcesses[i].interpolate(ticks);
 
-                    spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 280, (int)drawingOffset.Y + 420 + jobcount * 25, 102, 20), 1, Color.Black, false, layerDepth + 0.01f);
-                    spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 281, (int)drawingOffset.Y + 421 + jobcount * 25, (int)(100 * progress), 18), 1, Color.Green, true, layerDepth + 0.01f);
-
-                }
+                spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 280, (int)drawingOffset.Y + 420 + jobcount * 25, 102, 20), 1, Color.Black, false, layerDepth + 0.01f);
+                spriteRenderer.DrawRectanglePrimitive(new Rectangle((int)drawingOffset.X + 281, (int)drawingOffset.Y + 421 + jobcount * 25, (int)(100 * progress), 18), 1, Color.Green, true, layerDepth + 0.01f);            
             }
+
             for (int i = 0; i < mVillage.ConstructionQueue.Count; i++)
             {
                 jobcount++;
@@ -138,7 +135,7 @@ namespace strategygame_client
                 string BuildingName = mBuildingInformation.getBuildingInfo(mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].Type).Name;
                 int newLevel = mVillage.Buildings[mVillage.ConstructionQueue.ElementAt(i).BuildingSlot].Level;
 
-                spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + newLevel, drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
+                spriteRenderer.DrawString("Construction of " + BuildingName + " Level " + (newLevel+1), drawingOffset + new Vector2(25, 420 + jobcount * 25), Color.Black, layerDepth + 0.01f);
             }
 
             for (int x = 0; x < mVillage.BuildingSlots.X; x++)
@@ -157,7 +154,7 @@ namespace strategygame_client
 
             if (mBuildingWindow.ContainsScreenPoint(p))
             {
-                mBuildingWindow.HandleMouseClick(p);
+                mBuildingWindow.HandleMouseClick(mVillage, p);
             }
             else
             {

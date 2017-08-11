@@ -73,6 +73,17 @@ namespace strategygame_client.GUI
         public void ShowBuildingUpdate(IBuildingInformation buildingInformation, IVillage village, BuildingSlot currentBuilding)
         {
             mUpgradeOptions.Clear();
+
+            if (currentBuilding == null)
+                return;
+
+            if (!buildingInformation.couldBuild(currentBuilding.Type, currentBuilding.Level + 1, village.Buildings, village.CellType))
+                return;
+
+            SingleBuildingInformation info = buildingInformation.getBuildingInfo(currentBuilding.Type);
+            BuildingUpgradeOption upgradeOption = new BuildingUpgradeOption(mContent, new Rectangle(10, 0, 280, 100), currentBuilding.Type, info, currentBuilding.Level+1);
+            upgradeOption.OnBuild += UpgradeOption_OnBuild;
+            mUpgradeOptions.Add(upgradeOption);
         }        
     }
 }
